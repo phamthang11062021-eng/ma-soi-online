@@ -3,6 +3,7 @@ const http = require("http");
 const crypto = require("crypto");
 const path = require("path");
 const { Server } = require("socket.io");
+const { addHistoryEvent, visibleHistory } = require("./lib/history");
 
 const app = express();
 const server = http.createServer(app);
@@ -117,17 +118,29 @@ function shuffle(a) {
   }
   return x;
 }
-function rolesFor(count) {
-  const wolfCount = count >= 14 ? 4 : count >= 10 ? 3 : count >= 7 ? 2 : 1;
+const CONFIGURABLE_ROLES = ["seer", "witch", "protector", "cupid", "hunter", "elder", "littleGirl", "mayor", "medium"];
+function rolesFor(count, settings = {}) {
+  const automaticWolfCount = count >= 14 ? 4 : count >= 10 ? 3 : count >= 7 ? 2 : 1;
+  const requestedWolfCount = Number(settings.wolfCount) || 0;
+  const wolfCount = Math.min(Math.max(1, requestedWolfCount || automaticWolfCount), Math.max(1, count - 2));
   const roles = Array(wolfCount).fill("wolf");
-  roles.push("seer", "witch");
-  if (count >= 6) roles.push("protector");
-  if (count >= 7) roles.push("cupid");
-  if (count >= 8) roles.push("hunter");
-  if (count >= 9) roles.push("elder");
-  if (count >= 10) roles.push("littleGirl");
-  if (count >= 11) roles.push("mayor");
-  if (count >= 12) roles.push("medium");
+
+  if (settings.customRoles) {
+    const enabled = new Set(Array.isArray(settings.enabledRoles) ? settings.enabledRoles : CONFIGURABLE_ROLES);
+    for (const role of CONFIGURABLE_ROLES) {
+      if (enabled.has(role) && roles.length < count - 1) roles.push(role);
+    }
+  } else {
+    roles.push("seer", "witch");
+    if (count >= 6) roles.push("protector");
+    if (count >= 7) roles.push("cupid");
+    if (count >= 8) roles.push("hunter");
+    if (count >= 9) roles.push("elder");
+    if (count >= 10) roles.push("littleGirl");
+    if (count >= 11) roles.push("mayor");
+    if (count >= 12) roles.push("medium");
+  }
+
   while (roles.length < count) roles.push("villager");
   return shuffle(roles);
 }
@@ -149,16 +162,21 @@ function checkWin(room) {
     if (a && b && a.alive && b.alive && ((a.role === "wolf") !== (b.role === "wolf")) && living.length === 2) {
       room.status = "ended"; room.phase = "ended"; room.winner = "lovers";
       room.announcement = "Đôi tình nhân khác phe đã sống sót đến cuối cùng và giành chiến thắng!";
+      addHistoryEvent(room, { message: "Kết thúc ván: đôi tình nhân khác phe giành chiến thắng.", kind: "result" });
       clearTimer(room); return true;
     }
   }
   if (wolfCount === 0) {
     room.status = "ended"; room.phase = "ended"; room.winner = "town";
-    room.announcement = "Dân làng đã tìm ra toàn bộ Ma sói!"; clearTimer(room); return true;
+    room.announcement = "Dân làng đã tìm ra toàn bộ Ma sói!";
+    addHistoryEvent(room, { message: "Kết thúc ván: phe Dân làng chiến thắng.", kind: "result" });
+    clearTimer(room); return true;
   }
   if (wolfCount >= townCount) {
     room.status = "ended"; room.phase = "ended"; room.winner = "wolf";
-    room.announcement = "Ma sói đã chiếm ưu thế và chiến thắng!"; clearTimer(room); return true;
+    room.announcement = "Ma sói đã chiếm ưu thế và chiến thắng!";
+    addHistoryEvent(room, { message: "Kết thúc ván: phe Ma sói chiến thắng.", kind: "result" });
+    clearTimer(room); return true;
   }
   return false;
 }
@@ -244,7 +262,7 @@ function publicState(room, player) {
     code: room.code, status: room.status, phase: room.phase, subphase: room.subphase || "",
     day: room.day, players: others, playerCount: room.players.length,
     settings: room.settings, endsAt: room.endsAt, announcement: room.announcement,
-    winner: room.winner, chat: room.chat.slice(-35),
+    winner: room.winner, chat: room.chat.slice(-35), history: visibleHistory(room, player),
     self: me ? {
       id: me.id, name: me.name, alive: me.alive, ready: me.ready, role: me.role,
       isHost: me.id === room.hostId,
@@ -256,7 +274,7 @@ function publicState(room, player) {
       loverName: room.loverPair && room.loverPair.includes(me.id) ? ((getPlayer(room, room.loverPair.find(id => id !== me.id)) || {}).name || "") : "",
       mayorVoteWeight: me.role === "mayor" && me.alive ? 2 : 1
     } : null,
-    canStart: !!player && player.id === room.hostId && room.status === "lobby" && room.players.length >= 5 && room.players.length <= 16 && room.players.every(p => p.ready),
+    canStart: !!player && player.id === room.hostId && room.status === "lobby" && room.players.length >= 5 && room.players.length <= room.settings.maxPlayers && (room.settings.wolfCount === 0 || room.settings.wolfCount <= room.players.length - 2) && room.players.every(p => p.ready),
     voteReadyCount: room.voteReady.size,
     isRevealed: ended
   };
@@ -276,9 +294,12 @@ function setTimer(room, seconds, callback) {
 function createRoomObject(code, player) {
   return {
     code, players: [player], hostId: player.id, hostTransferTimer: null, kickedTokens: new Set(), kickedNames: new Set(), status: "lobby", phase: "lobby", subphase: "",
-    settings: { discussionSeconds: 180, voteSeconds: 45, nightSeconds: 35 },
+    settings: {
+      discussionSeconds: 180, voteSeconds: 45, nightSeconds: 35,
+      maxPlayers: 16, wolfCount: 0, customRoles: false, enabledRoles: CONFIGURABLE_ROLES.slice()
+    },
     day: 0, timer: null, endsAt: null, announcement: "Đang chờ mọi người tham gia.",
-    winner: null, night: null, votes: {}, voteReady: new Set(), chat: [],
+    winner: null, night: null, votes: {}, voteReady: new Set(), chat: [], history: [],
     privateNotes: {}, witchSaveAvailable: true, witchPoisonAvailable: true,
     lastProtected: null, elderShieldUsed: false, mediumUsed: false,
     loverPair: null, hunterShotUsed: new Set(), hunterQueue: [],
@@ -296,14 +317,16 @@ function joinPlayer(socket, room, player, token) {
 }
 function startGame(room, starterId) {
   if (starterId !== room.hostId) return false;
-  if (room.status !== "lobby" || room.players.length < 5 || room.players.length > 16 || !room.players.every(p => p.ready)) return false;
-  const roles = rolesFor(room.players.length);
+  if (room.status !== "lobby" || room.players.length < 5 || room.players.length > room.settings.maxPlayers || !room.players.every(p => p.ready)) return false;
+  if (room.settings.wolfCount > 0 && room.settings.wolfCount > room.players.length - 2) return false;
+  const roles = rolesFor(room.players.length, room.settings);
   room.players.forEach((p, i) => { p.role = roles[i]; p.alive = true; p.ready = false; });
   room.status = "playing"; room.day = 0; room.winner = null;
   room.witchSaveAvailable = true; room.witchPoisonAvailable = true; room.lastProtected = null;
   room.elderShieldUsed = false; room.mediumUsed = false; room.loverPair = null;
   room.hunterShotUsed = new Set(); room.hunterQueue = [];
   room.announcement = "Vai trò đã được chia bí mật. Hãy mở thẻ vai trò để đọc hướng dẫn của bạn!";
+  addHistoryEvent(room, { message: "Ván chơi bắt đầu. Vai trò đã được chia riêng cho từng người chơi.", kind: "phase" });
   startNight(room); return true;
 }
 function setNightStep(room, index) {
@@ -317,7 +340,14 @@ function setNightStep(room, index) {
     if (step === "medium" && (room.mediumUsed || !room.players.some(p => !p.alive))) players = [];
     if (players.length) {
       room.subphase = step; room.night.stepIndex = index;
-      if (step === "wolves") room.night.wolfVotes = {};
+      const privateTurnNames = players.map(p => p.id);
+      const turnLabel = step === "wolves" ? "Ma sói" : (ROLE_GUIDES[role] || {}).name || role;
+      addHistoryEvent(room, { message: "Đến lượt " + turnLabel + " hành động.", visibility: "private", playerIds: privateTurnNames, kind: "private" });
+      if (step === "wolves") {
+        room.night.wolfVotes = {};
+        const littleGirls = alive(room).filter(p => p.role === "littleGirl");
+        if (littleGirls.length) addHistoryEvent(room, { message: "Bạn có thể quan sát lén bầy sói trong lượt này.", visibility: "private", playerIds: littleGirls.map(p => p.id), kind: "private" });
+      }
       room.night.done = room.night.done || {};
       room.announcement =
         step === "cupid" ? "Đêm đầu tiên: Thần tình yêu đang ghép đôi." :
@@ -336,6 +366,7 @@ function startNight(room) {
   room.phase = "night"; room.subphase = "";
   room.night = { protectTarget: null, wolfVotes: {}, wolfTarget: null, seerTarget: null, witchSave: false, witchPoisonTarget: null, done: {}, peeked: {} };
   room.privateNotes = {}; room.voteReady = new Set();
+  addHistoryEvent(room, { message: room.day === 0 ? "Đêm đầu tiên bắt đầu." : "Đêm " + (room.day + 1) + " bắt đầu.", kind: "phase" });
   setNightStep(room, 0);
 }
 function advanceNight(room) {
@@ -382,7 +413,12 @@ function resolveHunterShot(room, targetId) {
   room.hunterShotUsed.add(hunterId);
   room.currentHunterShot = null;
   const target = targetId && getPlayer(room, targetId);
-  if (target && target.alive) applyDeathChain(room, [target.id]);
+  if (target && target.alive) {
+    addHistoryEvent(room, { message: "Phát súng cuối đã khiến " + target.name + " bị loại.", kind: "result" });
+    applyDeathChain(room, [target.id]);
+  } else {
+    addHistoryEvent(room, { message: "Phát súng cuối đã không được sử dụng.", kind: "result" });
+  }
   if (room.hunterQueue.length) startHunterShot(room);
   else continueAfterDeaths(room);
 }
@@ -414,14 +450,22 @@ function finishNightAfterDeaths(room) {
   const names = room.pendingDeathNames;
   room.announcement = names.length ? ("Trời sáng! Người không qua khỏi đêm nay: " + names.join(", ") + ".") :
     (room.announcement.includes("sống sót sau") ? room.announcement : "Trời sáng! Đêm qua không có ai bị loại.");
+  addHistoryEvent(room, {
+    message: names.length
+      ? "Bình minh: " + names.join(", ") + " bị loại trong đêm."
+      : (room.announcement.includes("sống sót sau") ? "Bình minh: Có người đã sống sót sau một đòn tấn công." : "Bình minh: Đêm qua không có ai bị loại."),
+    kind: "result"
+  });
   if (checkWin(room)) { broadcast(room); return; }
   room.phase = "discussion"; room.subphase = ""; room.day += 1; room.voteReady = new Set();
+  addHistoryEvent(room, { message: "Ngày " + room.day + " bắt đầu. Thảo luận được mở.", kind: "phase" });
   broadcast(room); setTimer(room, room.settings.discussionSeconds, () => startVote(room));
 }
 function startVote(room) {
   if (room.status !== "playing") return;
   clearTimer(room); room.phase = "vote"; room.subphase = ""; room.votes = {}; room.voteReady = new Set();
   room.announcement = "Thời gian thảo luận kết thúc. Hãy bỏ phiếu kín!";
+  addHistoryEvent(room, { message: "Ngày " + room.day + ": bắt đầu bỏ phiếu kín.", kind: "phase" });
   broadcast(room); setTimer(room, room.settings.voteSeconds, () => resolveVote(room));
 }
 function resolveVote(room) {
@@ -439,6 +483,12 @@ function resolveVote(room) {
 function finishVoteAfterDeaths(room) {
   if (room.status !== "playing") return;
   if (room.pendingDeathNames.length) room.announcement = "Kết quả bỏ phiếu: " + room.pendingDeathNames.join(", ") + " bị loại.";
+  addHistoryEvent(room, {
+    message: room.pendingDeathNames.length
+      ? "Kết quả bỏ phiếu: " + room.pendingDeathNames.join(", ") + " bị loại."
+      : "Kết quả bỏ phiếu hòa hoặc không đủ phiếu. Không ai bị loại.",
+    kind: "result"
+  });
   if (checkWin(room)) { broadcast(room); return; }
   room.phase = "intermission"; room.subphase = "";
   broadcast(room); setTimer(room, 3.5, () => { if (room.status === "playing") startNight(room); });
@@ -456,6 +506,7 @@ function handleNightAction(socket, room, player, data) {
     room.privateNotes[player.id] = "Bạn đã ghép đôi " + a.name + " và " + b.name + ".";
     room.privateNotes[a.id] = "Bạn là người yêu của " + b.name + ". Nếu người ấy bị loại, bạn cũng sẽ ra đi.";
     room.privateNotes[b.id] = "Bạn là người yêu của " + a.name + ". Nếu người ấy bị loại, bạn cũng sẽ ra đi.";
+    addHistoryEvent(room, { message: "Bạn đã ghép đôi " + a.name + " và " + b.name + ".", visibility: "private", playerIds: [player.id, a.id, b.id], kind: "private" });
     room.night.done[player.id] = true; advanceNight(room); return;
   }
   if (sub === "wolves" && player.role === "wolf") {
@@ -464,6 +515,8 @@ function handleNightAction(socket, room, player, data) {
     const livingWolves = wolves(room);
     if (livingWolves.every(p => room.night.wolfVotes[p.id])) {
       room.night.wolfTarget = plurality(livingWolves.map(p => room.night.wolfVotes[p.id]));
+      const targetPlayer = getPlayer(room, room.night.wolfTarget);
+      if (targetPlayer) addHistoryEvent(room, { message: "Bầy sói đã thống nhất chọn " + targetPlayer.name + " làm mục tiêu đêm này.", visibility: "private", playerIds: livingWolves.map(p => p.id), kind: "private" });
       advanceNight(room);
     } else broadcast(room);
     return;
@@ -471,22 +524,27 @@ function handleNightAction(socket, room, player, data) {
   if (sub === "wolves" && player.role === "littleGirl" && data.action === "peek") {
     if (room.night.peeked[player.id]) return;
     room.privateNotes[player.id] = "Bạn lén nhìn thấy phe Ma sói gồm: " + wolves(room).map(p => p.name).join(", ") + ".";
+    addHistoryEvent(room, { message: room.privateNotes[player.id], visibility: "private", playerIds: [player.id], kind: "private" });
     room.night.peeked[player.id] = true; broadcast(room); return;
   }
   if (room.night.done[player.id]) return;
   if (sub === "protect" && player.role === "protector") {
     if (!target || !target.alive || target.id === room.lastProtected) return sendError(socket, "Mục tiêu không hợp lệ hoặc đã được bảo vệ đêm trước.");
-    room.night.protectTarget = target.id; room.night.done[player.id] = true; advanceNight(room); return;
+    room.night.protectTarget = target.id;
+    addHistoryEvent(room, { message: "Bạn đã chọn bảo vệ " + target.name + " trong đêm này.", visibility: "private", playerIds: [player.id], kind: "private" });
+    room.night.done[player.id] = true; advanceNight(room); return;
   }
   if (sub === "seer" && player.role === "seer") {
     if (!target || !target.alive || target.id === player.id) return sendError(socket, "Hãy chọn một người chơi khác còn sống.");
     room.privateNotes[player.id] = target.name + (target.role === "wolf" ? " thuộc phe Ma sói." : " không thuộc phe Ma sói.");
+    addHistoryEvent(room, { message: "Kết quả soi: " + room.privateNotes[player.id], visibility: "private", playerIds: [player.id], kind: "private" });
     room.night.done[player.id] = true; advanceNight(room); return;
   }
   if (sub === "medium" && player.role === "medium") {
     if (room.mediumUsed) return sendError(socket, "Bạn đã sử dụng năng lực Thầy đồng.");
     if (!target || target.alive || !target.role) return sendError(socket, "Hãy chọn một người đã bị loại.");
     room.privateNotes[player.id] = "Linh hồn " + target.name + " tiết lộ vai trò: " + ROLE_GUIDES[target.role].name + ".";
+    addHistoryEvent(room, { message: room.privateNotes[player.id], visibility: "private", playerIds: [player.id], kind: "private" });
     room.mediumUsed = true; room.night.done[player.id] = true; advanceNight(room); return;
   }
   if (sub === "witch" && player.role === "witch") {
@@ -494,10 +552,14 @@ function handleNightAction(socket, room, player, data) {
     if (action === "save") {
       if (!room.witchSaveAvailable || !room.night.wolfTarget) return sendError(socket, "Không còn bình cứu hoặc đêm nay không có mục tiêu bị cắn.");
       room.night.witchSave = true; room.witchSaveAvailable = false;
+      addHistoryEvent(room, { message: "Bạn đã sử dụng bình cứu trong đêm này.", visibility: "private", playerIds: [player.id], kind: "private" });
     } else if (action === "poison") {
       if (!room.witchPoisonAvailable || !target || !target.alive) return sendError(socket, "Không còn bình độc hoặc mục tiêu không hợp lệ.");
       room.night.witchPoisonTarget = target.id; room.witchPoisonAvailable = false;
-    } else if (action !== "skip") return sendError(socket, "Lựa chọn không hợp lệ.");
+      addHistoryEvent(room, { message: "Bạn đã dùng bình độc lên " + target.name + ".", visibility: "private", playerIds: [player.id], kind: "private" });
+    } else if (action === "skip") {
+      addHistoryEvent(room, { message: "Bạn đã bỏ qua lượt thuốc đêm này.", visibility: "private", playerIds: [player.id], kind: "private" });
+    } else return sendError(socket, "Lựa chọn không hợp lệ.");
     room.night.done[player.id] = true; advanceNight(room); return;
   }
 }
@@ -532,7 +594,7 @@ io.on("connection", (socket) => {
     }
     if (!name) return sendError(socket, "Nhập tên của bạn trước nhé.");
     if (room.status !== "lobby") return sendError(socket, "Ván chơi đã bắt đầu. Chỉ người chơi cũ có mã phiên mới vào lại được.");
-    if (room.players.length >= 16) return sendError(socket, "Phòng đã đủ 16 người.");
+    if (room.players.length >= room.settings.maxPlayers) return sendError(socket, "Phòng đã đạt giới hạn số người do chủ phòng cài đặt.");
     if (room.players.some(p => p.name.toLowerCase() === name.toLowerCase())) return sendError(socket, "Tên này đã có trong phòng, hãy chọn tên khác.");
     const newToken = randomId(18);
     player = { id: randomId(8), name, token: newToken, socketId: null, connected: true, ready: false, alive: true, role: null };
@@ -549,6 +611,44 @@ io.on("connection", (socket) => {
     const p = room.players.find(x => x.socketId === socket.id);
     if (!p || p.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng mới có quyền bắt đầu ván chơi.");
     if (!startGame(room, p.id)) return sendError(socket, "Cần ít nhất 5 người và tất cả người chơi phải sẵn sàng.");
+    broadcast(room);
+  });
+
+  socket.on("hostSettings", (data) => {
+    const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
+    if (!room || room.status !== "lobby") return sendError(socket, "Chỉ có thể thay đổi cài đặt khi phòng đang ở sảnh chờ.");
+    const host = room.players.find(p => p.socketId === socket.id);
+    if (!host || host.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng mới được thay đổi cài đặt.");
+
+    const next = data || {};
+    const maxPlayers = Number(next.maxPlayers);
+    const discussionSeconds = Number(next.discussionSeconds);
+    const voteSeconds = Number(next.voteSeconds);
+    const nightSeconds = Number(next.nightSeconds);
+    const wolfCount = Number(next.wolfCount);
+    const customRoles = next.customRoles === true;
+    const enabledRoles = Array.isArray(next.enabledRoles)
+      ? [...new Set(next.enabledRoles.filter(role => CONFIGURABLE_ROLES.includes(role)))]
+      : room.settings.enabledRoles.slice();
+
+    if (!Number.isInteger(maxPlayers) || maxPlayers < 5 || maxPlayers > 16 || maxPlayers < room.players.length) {
+      return sendError(socket, "Số người tối đa phải từ 5 đến 16 và không được thấp hơn số người đang có trong phòng.");
+    }
+    if (!Number.isInteger(discussionSeconds) || discussionSeconds < 30 || discussionSeconds > 300) {
+      return sendError(socket, "Thời gian thảo luận phải từ 30 đến 300 giây.");
+    }
+    if (!Number.isInteger(voteSeconds) || voteSeconds < 15 || voteSeconds > 120) {
+      return sendError(socket, "Thời gian bỏ phiếu phải từ 15 đến 120 giây.");
+    }
+    if (!Number.isInteger(nightSeconds) || nightSeconds < 10 || nightSeconds > 90) {
+      return sendError(socket, "Thời gian mỗi lượt ban đêm phải từ 10 đến 90 giây.");
+    }
+    if (!Number.isInteger(wolfCount) || wolfCount < 0 || wolfCount > 4) {
+      return sendError(socket, "Số Ma sói phải chọn từ Tự động đến 4.");
+    }
+
+    room.settings = { discussionSeconds, voteSeconds, nightSeconds, maxPlayers, wolfCount, customRoles, enabledRoles };
+    room.announcement = "Chủ phòng đã cập nhật cài đặt ván chơi.";
     broadcast(room);
   });
   socket.on("replayGame", () => {
@@ -568,6 +668,7 @@ io.on("connection", (socket) => {
     room.votes = {};
     room.voteReady = new Set();
     room.chat = [];
+    room.history = [];
     room.privateNotes = {};
     room.witchSaveAvailable = true;
     room.witchPoisonAvailable = true;
