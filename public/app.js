@@ -47,6 +47,12 @@ $("chatForm").onsubmit = (e) => {
 };
 socket.on("joined", ({ code, token }) => enterRoom(code, token));
 socket.on("errorMessage", showToast);
+socket.on("kicked", ({ message }) => {
+  sessionStorage.removeItem("werewolf-session");
+  myCode = ""; myToken = ""; state = null;
+  $("game").classList.add("hidden"); $("home").classList.remove("hidden");
+  showToast(message || "Bạn đã bị mời ra khỏi phòng.");
+});
 socket.on("connect", () => {
   if (saved.code && saved.token) {
     $("homeName").value = saved.name || "";
@@ -68,11 +74,21 @@ function render(s) {
     s.phase === "deathshot" ? "PHÁT SÚNG CUỐI CÙNG" : s.phase === "intermission" ? "KẾT QUẢ BỎ PHIẾU" : "KẾT THÚC";
   $("players").innerHTML = s.players.map((p, i) =>
     '<div class="player ' + (!p.alive ? "dead" : "") + '">' +
-    '<div class="avatar">' + (i + 1) + '</div><span>' + esc(p.name) + '</span>' +
+    '<div class="avatar">' + (i + 1) + '</div><span class="player-name">' + esc(p.name) + '</span>' +
+    (p.isHost ? '<span class="host-badge">👑 CHỦ PHÒNG</span>' : '') +
     '<span class="status">' + (p.alive ? (p.ready ? "Sẵn sàng" : "Còn sống") : "Đã bị loại") +
     (p.connected ? "" : " · Mất kết nối") + '</span>' +
+    (p.canManage ? '<div class="player-actions"><button class="player-action" data-transfer="' + p.id + '">Chuyển chủ</button><button class="player-action kick" data-kick="' + p.id + '">Kick</button></div>' : '') +
     (s.isRevealed ? '<span class="revealed-role">' + esc(p.role || "") + '</span>' : "") + '</div>'
   ).join("");
+  $("players").querySelectorAll("[data-kick]").forEach(button => button.onclick = () => {
+    const target = s.players.find(p => p.id === button.dataset.kick);
+    if (target && window.confirm("Mời " + target.name + " ra khỏi phòng?")) socket.emit("kickPlayer", { targetId: target.id });
+  });
+  $("players").querySelectorAll("[data-transfer]").forEach(button => button.onclick = () => {
+    const target = s.players.find(p => p.id === button.dataset.transfer);
+    if (target && window.confirm("Chuyển quyền chủ phòng cho " + target.name + "?")) socket.emit("transferHost", { targetId: target.id });
+  });
 
   const me = s.self;
   $("selfStatus").textContent = me ? ("Bạn: " + me.name + (me.alive ? " · Còn sống" : " · Đã bị loại")) : "";
@@ -80,8 +96,13 @@ function render(s) {
   if (me && me.role) renderRoleCard(me);
   $("lobbyControls").classList.toggle("hidden", s.status !== "lobby");
   $("readyBtn").textContent = me && me.ready ? "Hủy sẵn sàng" : "Tôi đã sẵn sàng";
+  $("startBtn").classList.toggle("hidden", !(me && me.isHost));
   $("startBtn").disabled = !s.canStart;
   $("startBtn").style.opacity = s.canStart ? "1" : ".45";
+  const hostPlayer = s.players.find(p => p.isHost);
+  $("hostHint").textContent = me && me.isHost
+    ? "👑 Bạn là chủ phòng. Có thể bắt đầu, kick hoặc chuyển quyền cho người khác."
+    : "Chủ phòng: " + (hostPlayer ? hostPlayer.name : "đang được chuyển giao") + ". Chỉ chủ phòng mới được bắt đầu và quản lý người chơi.";
   $("chatArea").classList.toggle("hidden", s.phase !== "discussion" || !me || !me.alive);
   $("chatMessages").innerHTML = (s.chat || []).map(m =>
     '<div class="chat-msg"><b>' + esc(m.name) + '</b>' + esc(m.message) + '</div>'
