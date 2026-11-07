@@ -268,7 +268,7 @@ function publicState(room, player) {
       loverName: room.loverPair && room.loverPair.includes(me.id) ? ((getPlayer(room, room.loverPair.find(id => id !== me.id)) || {}).name || "") : "",
       mayorVoteWeight: me.role === "mayor" && me.alive ? 2 : 1
     } : null,
-    canStart: !!player && player.id === room.hostId && room.status === "lobby" && room.players.length >= 5 && room.players.length <= room.settings.maxPlayers && room.players.every(p => p.ready),
+    canStart: !!player && player.id === room.hostId && room.status === "lobby" && room.players.length >= 5 && room.players.length <= room.settings.maxPlayers && (room.settings.wolfCount === 0 || room.settings.wolfCount <= room.players.length - 2) && room.players.every(p => p.ready),
     voteReadyCount: room.voteReady.size,
     isRevealed: ended
   };
@@ -312,6 +312,7 @@ function joinPlayer(socket, room, player, token) {
 function startGame(room, starterId) {
   if (starterId !== room.hostId) return false;
   if (room.status !== "lobby" || room.players.length < 5 || room.players.length > room.settings.maxPlayers || !room.players.every(p => p.ready)) return false;
+  if (room.settings.wolfCount > 0 && room.settings.wolfCount > room.players.length - 2) return false;
   const roles = rolesFor(room.players.length, room.settings);
   room.players.forEach((p, i) => { p.role = roles[i]; p.alive = true; p.ready = false; });
   room.status = "playing"; room.day = 0; room.winner = null;
