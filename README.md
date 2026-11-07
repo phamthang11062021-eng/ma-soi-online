@@ -67,3 +67,14 @@ Người chơi có thể ẩn/mở phần hướng dẫn trong suốt ván. Role
 - Phòng và trạng thái ván hiện lưu trong bộ nhớ tiến trình máy chủ. Khi dịch vụ khởi động lại, phòng đang chơi có thể mất.
 - Chưa có database bền vững, tài khoản người chơi, chế độ chat riêng cho người đã chết, hoặc giao diện cấu hình bộ role.
 - Luật và kỹ năng là bộ luật riêng của phiên bản này; nên thử nghiệm với nhóm nhỏ trước khi chơi chính thức.
+
+
+## Thư viện nhân vật (nhánh phát triển Version 2.0)
+
+- Mở thư viện tại đường dẫn `/roles.html` hoặc chọn **Thư viện role** ở trang chủ.
+- 11 role hiện đang có trong game được đánh dấu **Đang trong game**.
+- 10 role ý tưởng được đánh dấu **Sắp phát triển / Chưa có logic**; các role này chỉ là bản xem trước, chưa được đưa vào thuật toán chia vai và không thể sử dụng trong ván.
+- Có tìm kiếm, lọc theo phe/trạng thái và thẻ nhân vật lật mặt trước/mặt sau.
+- Giao diện thư viện tối ưu cho desktop và điện thoại.
+
+Lưu ý: thư viện nhân vật không thay đổi thuật toán chia role hiện tại. Các role mới chỉ được kích hoạt sau khi luật, thứ tự thức dậy, điều kiện thắng và tương tác với role cũ được thống nhất và kiểm thử.
