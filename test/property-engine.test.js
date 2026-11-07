@@ -12,8 +12,8 @@ test("board has 40 spaces and game supports 2 to 10 players",()=>{
 test("roll moves current player and pays salary when passing start",()=>{
  const g=gameEngine.createGame(players());
  g.players[0].position=39;
- gameEngine.roll(g,"a",[1,2]);
- assert.equal(g.players[0].position,2);
+ gameEngine.roll(g,"a",[1,3]);
+ assert.equal(g.players[0].position,3);
  assert.equal(g.players[0].money,1700);
 });
 test("landing on unowned property creates purchase prompt and buy transfers ownership",()=>{
