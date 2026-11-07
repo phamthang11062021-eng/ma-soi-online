@@ -17,18 +17,44 @@ Website chơi Ma Sói nhiều người bằng tiếng Việt, tự động đi�
 3. Chọn branch `main`.
 4. Build command: `npm install`.
 5. Start command: `npm start`.
-6. Chọn gói Free nếu muốn thử nghiệm miễn phí, sau đó Deploy.
+6. Chọn gói Free để thử nghiệm, sau đó Deploy.
+7. Kiểm tra đường dẫn `/health` sau khi dịch vụ chạy.
 
-Repository đã có `render.yaml` để Render nhận diện cấu hình dịch vụ. Sau khi deploy, kiểm tra đường dẫn `/health`.
+Repository có `render.yaml` để Render nhận diện cấu hình dịch vụ.
 
-## Luật và vai hiện tại
+## Vai trò trong phiên bản hiện tại
 
-- 5–16 người; chia số Ma sói theo số người.
-- Dân làng, Ma sói, Tiên tri, Phù thủy; Bảo vệ được thêm từ 7 người.
-- Đêm tự động theo thứ tự Bảo vệ → Ma sói → Tiên tri → Phù thủy.
-- Ban ngày thảo luận, bỏ phiếu kín; kiểm tra điều kiện thắng sau mỗi lần loại.
-- Vai và hành động ban đêm chỉ được gửi riêng cho người chơi tương ứng.
+Có 11 role, mỗi người chỉ nhận hướng dẫn riêng cho role mình được chia:
+
+- **Phe sói:** Ma sói.
+- **Phe dân:** Dân làng, Tiên tri, Phù thủy, Bảo vệ, Thợ săn, Thần tình yêu, Già làng, Cô bé, Thị trưởng, Thầy đồng.
+
+### Kỹ năng đã triển khai
+
+- Ma sói: bỏ phiếu chọn mục tiêu ban đêm.
+- Tiên tri: soi một người mỗi đêm, biết người đó có thuộc phe sói không.
+- Phù thủy: một bình cứu và một bình độc; mỗi đêm chọn tối đa một hành động.
+- Bảo vệ: bảo vệ một người, không lặp mục tiêu ở hai đêm liên tiếp.
+- Thợ săn: khi bị loại có 20 giây để bắn một người còn sống.
+- Thần tình yêu: đêm đầu ghép hai người; một người chết thì người kia chết theo. Nếu đôi tình nhân khác phe là hai người cuối cùng còn sống, họ thắng riêng.
+- Già làng: sống sót sau lần đầu bị sói cắn.
+- Cô bé: có thể quan sát lén danh sách Ma sói trong lượt sói.
+- Thị trưởng: lá phiếu ban ngày có trọng số gấp đôi.
+- Thầy đồng: một lần mỗi ván xem chính xác role của một người đã chết.
+- Dân làng: thảo luận và bỏ phiếu.
+
+## Hướng dẫn role
+
+Khi ván bắt đầu, thẻ role riêng của người chơi hiển thị:
+- Mục tiêu chiến thắng.
+- Kỹ năng và giới hạn.
+- Hướng dẫn từng bước.
+- Mẹo sử dụng role.
+
+Người chơi có thể ẩn/mở phần hướng dẫn trong suốt ván. Role và thông tin bí mật không được gửi cho người chơi khác; vai của mọi người chỉ được công khai khi ván kết thúc.
 
 ## Lưu ý bản thử nghiệm
 
-Bản hiện tại lưu phòng trong bộ nhớ tiến trình máy chủ. Khi dịch vụ khởi động lại hoặc ngủ rồi khởi động lại, phòng đang chơi có thể mất. Chưa có database bền vững, xác thực tài khoản, chat người chết, Thợ săn, xử lý hòa phiếu vòng hai hoặc hệ thống quản trị. Hãy thử với nhóm nhỏ trước khi dùng trong buổi chơi chính thức.
+- Phòng và trạng thái ván hiện lưu trong bộ nhớ tiến trình máy chủ. Khi dịch vụ khởi động lại, phòng đang chơi có thể mất.
+- Chưa có database bền vững, tài khoản người chơi, chế độ chat riêng cho người đã chết, hoặc giao diện cấu hình bộ role.
+- Luật và kỹ năng là bộ luật riêng của phiên bản này; nên thử nghiệm với nhóm nhỏ trước khi chơi chính thức.
