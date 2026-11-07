@@ -2,61 +2,42 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10151d"><title>Ma Sói Online — Không cần quản trò</title>
+<meta name="theme-color" content="#111522"><title>Game Center – Chơi cùng bạn bè</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/game-center.css">
 </head>
 <body>
-<div class="ambient"></div><main class="shell">
-<header><div class="brand-mark">☾</div><div><div class="brand">MA SÓI <span>ONLINE</span></div><div class="tagline">Một ngôi làng · Không cần quản trò</div></div><a class="library-link" href="/roles.html">Thư viện role ↗</a><button id="soundBtn" class="icon-btn" title="Bật/tắt âm thanh">♫</button></header>
-<section id="home" class="panel hero">
-<div class="eyebrow">ĐÊM ĐANG GỌI TÊN BẠN</div><h1>Ai đang ẩn mình<br><em>trong bóng tối?</em></h1><p>Tạo phòng, mời bạn bè và để ngôi làng tự vận hành. Mỗi người chơi chỉ biết bí mật của chính mình.</p>
-<div class="form-grid"><label>Tên hiển thị<input id="homeName" maxlength="18" placeholder="Ví dụ: Sói xám"></label><button id="createBtn" class="primary">Tạo phòng mới <span>↗</span></button></div>
-<div class="join-row"><input id="roomCode" maxlength="6" placeholder="NHẬP MÃ PHÒNG"><button id="joinBtn" class="secondary">Tham gia phòng</button></div>
-<div class="feature-row"><span>♟ 5–16 người</span><span>◉ Chia vai bí mật</span><span>⌁ Tự động điều hành</span></div>
+<div class="gc-glow"></div>
+<main class="gc-shell">
+<header class="gc-header">
+  <a class="gc-brand" href="/"><span class="gc-brand-mark">G</span><span><b>GAME CENTER</b><small>PLAY TOGETHER · HAVE FUN</small></span></a>
+  <nav><a href="#games">Trò chơi</a><a href="#how">Cách chơi</a><a href="/roles.html">Thư viện Ma Sói</a></nav>
+</header>
+<section class="gc-hero">
+  <div class="gc-eyebrow"><span></span> PHÒNG CHƠI CỦA BẠN ĐÃ SẴN SÀNG</div>
+  <h1>Một nơi.<br><em>Vô vàn cuộc vui.</em></h1>
+  <p>Tạo phòng, gửi mã cho hội bạn và chơi cùng nhau. Mọi trò chơi đều có hệ thống tự điều hành – không cần quản trò.</p>
+  <a class="gc-primary" href="#games">Khám phá trò chơi <span>↘</span></a>
+  <div class="gc-stats"><div><b>01</b><span>Game đang có sẵn</span></div><i></i><div><b>02</b><span>Game đang phát triển</span></div><i></i><div><b>10</b><span>Người chơi tối đa ở UNO</span></div></div>
 </section>
-<section id="game" class="hidden">
-<div class="room-top"><div><div class="eyebrow" id="phaseLabel">SẢNH CHỜ</div><h2 id="roomTitle">Phòng <span id="roomCodeLabel"></span></h2></div><button id="copyBtn" class="secondary small">Sao chép mã</button></div>
-<div id="notice" class="notice">Đang chờ người chơi...</div>
-<div id="roleCard" class="role-card hidden"><div class="role-card-top"><span class="eyebrow">THẺ VAI TRÒ BÍ MẬT</span><span id="roleTeam" class="role-team">PHE DÂN LÀNG</span></div><div class="role-art"><div class="role-art-frame"><span id="roleArt" class="role-art-icon">✦</span><span class="role-art-glow"></span></div><div class="role-art-caption">MA SÓI ONLINE · ROLE CARD</div></div><h2 id="roleName">Dân làng</h2><p id="roleDesc"></p><div id="privateInfo" class="private-info"></div><button id="guideToggle" class="guide-toggle">Ẩn hướng dẫn</button><div id="guidePanel" class="guide-panel"></div></div>
-<div class="game-layout"><div class="panel players-panel"><div class="panel-heading"><h3>Dân làng</h3><span id="countLabel">0/16</span></div><div id="players" class="players"></div><div id="lobbyControls"><button id="readyBtn" class="primary wide">Tôi đã sẵn sàng</button><button id="startBtn" class="secondary wide">👑 Chủ phòng: Bắt đầu ván chơi</button><p id="hostHint" class="hint">Chỉ chủ phòng mới có quyền bắt đầu ván chơi.</p>
-<div id="hostSettings" class="host-settings hidden">
-  <div class="host-settings-title"><strong>Cài đặt ván chơi</strong><span>CHỈ CHỦ PHÒNG</span></div>
-  <div class="settings-grid">
-    <label>Số người tối đa<select id="settingMaxPlayers"><option value="5">5 người</option><option value="6">6 người</option><option value="7">7 người</option><option value="8">8 người</option><option value="9">9 người</option><option value="10">10 người</option><option value="11">11 người</option><option value="12">12 người</option><option value="13">13 người</option><option value="14">14 người</option><option value="15">15 người</option><option value="16">16 người</option></select></label>
-    <label>Thảo luận<select id="settingDiscussion"><option value="60">1 phút</option><option value="90">1 phút 30 giây</option><option value="120">2 phút</option><option value="180">3 phút</option><option value="240">4 phút</option><option value="300">5 phút</option></select></label>
-    <label>Bỏ phiếu<select id="settingVote"><option value="15">15 giây</option><option value="30">30 giây</option><option value="45">45 giây</option><option value="60">1 phút</option><option value="90">1 phút 30 giây</option><option value="120">2 phút</option></select></label>
-    <label>Mỗi lượt đêm<select id="settingNight"><option value="10">10 giây</option><option value="15">15 giây</option><option value="20">20 giây</option><option value="30">30 giây</option><option value="35">35 giây</option><option value="45">45 giây</option><option value="60">1 phút</option><option value="90">1 phút 30 giây</option></select></label>
-    <label>Chế độ chia role<select id="settingRoleMode"><option value="auto">Tự động theo số người</option><option value="custom">Tự chọn role</option></select></label>
-    <label>Số Ma sói<select id="settingWolfCount"><option value="0">Tự động</option><option value="1">1 Ma sói</option><option value="2">2 Ma sói</option><option value="3">3 Ma sói</option><option value="4">4 Ma sói</option></select></label>
+<section id="games" class="gc-games">
+  <div class="gc-section-head"><div><div class="gc-eyebrow">CHỌN TRÒ CHƠI</div><h2>Hôm nay chơi gì?</h2></div><span>01 / 03</span></div>
+  <div class="gc-grid">
+    <article class="gc-card gc-werewolf">
+      <div class="gc-card-art"><div class="moon">☾</div><div class="wolf-silhouette">狼</div><span class="gc-pill ready">ĐANG HOẠT ĐỘNG</span></div>
+      <div class="gc-card-body"><div class="gc-card-kicker">SUY LUẬN · ẨN VAI</div><h3>Ma Sói Online</h3><p>Tìm ra kẻ ẩn mình trong làng. Nhận role bí mật, tranh luận và bỏ phiếu để giành chiến thắng.</p><div class="gc-card-foot"><span>♟ 5–16 người</span><a href="/werewolf">Vào làng <b>↗</b></a></div></div>
+    </article>
+    <article class="gc-card gc-uno">
+      <div class="gc-card-art"><div class="uno-fan"><i>7</i><i>2</i><i>9</i><i>4</i></div><span class="gc-pill ready">ĐÃ CÓ THỂ CHƠI</span></div>
+      <div class="gc-card-body"><div class="gc-card-kicker">BÀI LÁ · NHANH TAY</div><h3>Bài Màu Số</h3><p>Đánh bài theo màu hoặc số, dùng lá chức năng và gọi UNO trước khi đối thủ bắt lỗi.</p><div class="gc-card-foot"><span>♟ 2–10 người</span><a href="/uno">Chơi ngay <b>↗</b></a></div></div>
+    </article>
+    <article class="gc-card gc-property">
+      <div class="gc-card-art"><div class="board-mini"><span>GO</span><span>🏠</span><span>?</span><span>▣</span><span>⌂</span><span>★</span><span>▤</span><span>JAIL</span></div><span class="gc-pill building">ĐANG PHÁT TRIỂN</span></div>
+      <div class="gc-card-body"><div class="gc-card-kicker">CHIẾN THUẬT · TÀI SẢN</div><h3>Cờ Tỷ Phú Online</h3><p>Mua đất, xây nhà, thu tiền thuê và quản lý tài sản để trở thành người giàu nhất bàn cờ.</p><div class="gc-card-foot"><span>♟ 2–10 người</span><a href="/property">Khám phá <b>↗</b></a></div></div>
+    </article>
   </div>
-  <div id="customRoleSettings" class="custom-role-settings hidden">
-    <div class="custom-role-heading">Chọn các role đặc biệt được phép xuất hiện</div>
-    <div class="role-checkbox-grid">
-      <label><input type="checkbox" name="enabledRoles" value="seer"> Tiên tri</label>
-      <label><input type="checkbox" name="enabledRoles" value="witch"> Phù thủy</label>
-      <label><input type="checkbox" name="enabledRoles" value="protector"> Bảo vệ</label>
-      <label><input type="checkbox" name="enabledRoles" value="cupid"> Thần tình yêu</label>
-      <label><input type="checkbox" name="enabledRoles" value="hunter"> Thợ săn</label>
-      <label><input type="checkbox" name="enabledRoles" value="elder"> Già làng</label>
-      <label><input type="checkbox" name="enabledRoles" value="littleGirl"> Cô bé</label>
-      <label><input type="checkbox" name="enabledRoles" value="mayor"> Thị trưởng</label>
-      <label><input type="checkbox" name="enabledRoles" value="medium"> Thầy đồng</label>
-    </div>
-    <p class="hint">Nếu chọn nhiều role hơn số chỗ trống, hệ thống ưu tiên theo thứ tự danh sách. Các chỗ còn lại được bổ sung Dân làng.</p>
-  </div>
-  <button id="saveHostSettingsBtn" class="secondary wide" type="button">Lưu cài đặt phòng</button>
-  <p class="hint">Cài đặt chỉ áp dụng cho ván tiếp theo và không thể thay đổi khi ván đã bắt đầu.</p>
-</div></div></div>
-<div class="panel action-panel"><div class="panel-heading"><h3 id="actionTitle">Diễn biến</h3><span id="timer" class="timer">—</span></div><div id="actionArea" class="action-area"><div class="empty-state">Chờ mọi người vào phòng.<br><small>Gửi mã phòng để bạn bè tham gia.</small></div></div><div id="chatArea" class="chat-area hidden"><div id="chatMessages" class="chat-messages"></div><form id="chatForm"><input id="chatInput" maxlength="240" placeholder="Nói điều bạn nghi ngờ..."><button class="primary" type="submit">Gửi</button></form></div></div></div>
-<div id="historyPanel" class="panel history-panel hidden">
-  <div class="panel-heading history-heading"><div><h3>Nhật ký trận đấu</h3><p>Diễn biến công khai và thông tin bí mật chỉ dành cho bạn.</p></div><span id="historyCount" class="history-count">0 sự kiện</span></div>
-  <div id="historyList" class="history-list"><div class="history-empty">Chưa có diễn biến nào.</div></div>
-</div>
-<div class="bottom-row"><span id="selfStatus"></span><button id="leaveBtn" class="text-btn">Rời phòng</button></div>
 </section>
-<footer>MA SÓI ONLINE <span>·</span> Chơi vui, đừng tin ai quá sớm.</footer>
+<section id="how" class="gc-how"><div><div class="gc-eyebrow">CỰC KỲ ĐƠN GIẢN</div><h2>Chơi cùng nhau<br>chỉ trong 3 bước.</h2></div><div class="gc-steps"><div><b>01</b><span><strong>Chọn trò chơi</strong><small>Chọn game mà cả nhóm muốn chơi.</small></span></div><div><b>02</b><span><strong>Tạo phòng hoặc nhập mã</strong><small>Mời bạn bè tham gia bằng mã phòng.</small></span></div><div><b>03</b><span><strong>Bắt đầu cuộc vui</strong><small>Hệ thống tự điều hành, không cần quản trò.</small></span></div></div></section>
+<footer class="gc-footer"><a class="gc-brand" href="/"><span class="gc-brand-mark">G</span><span><b>GAME CENTER</b><small>PLAY TOGETHER · HAVE FUN</small></span></a><span>Chơi vui, kết nối bạn bè.</span></footer>
 </main>
-<div id="toast" class="toast"></div>
-<script src="/socket.io/socket.io.js"></script><script src="/app.js"></script>
 </body></html>
