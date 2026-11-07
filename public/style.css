@@ -76,3 +76,7 @@ button:disabled{opacity:.4;cursor:not-allowed;transform:none}
 
 .replay-button{margin-top:14px;min-height:48px;font-weight:900;letter-spacing:.5px;background:linear-gradient(135deg,#8c6b38,#c29a55);color:#171717;border:1px solid #e3c17f;box-shadow:0 8px 22px #0004}
 .replay-button:disabled{opacity:.55}
+
+.library-link{margin-left:auto;margin-right:12px;display:inline-flex;align-items:center;border:1px solid #756044;border-radius:999px;padding:8px 12px;color:#e7d0a4;text-decoration:none;font-size:10px;font-weight:700;white-space:nowrap;background:#28251f}
+.library-link:hover{background:#3b3123}
+@media(max-width:520px){.library-link{font-size:9px;padding:7px 9px;margin-right:4px}header{gap:8px}.brand{font-size:13px}.tagline{font-size:10px}}
