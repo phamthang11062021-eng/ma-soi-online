@@ -472,7 +472,7 @@ function handleNightAction(socket, room, player, data) {
   if (sub === "medium" && player.role === "medium") {
     if (room.mediumUsed) return sendError(socket, "Bạn đã sử dụng năng lực Thầy đồng.");
     if (!target || target.alive || !target.role) return sendError(socket, "Hãy chọn một người đã bị loại.");
-    room.privateNotes[player.id] = "Linh hồn " + target.name + tiết lộ vai trò: " + ROLE_GUIDES[target.role].name + ".";
+    room.privateNotes[player.id] = "Linh hồn " + target.name + " tiết lộ vai trò: " + ROLE_GUIDES[target.role].name + ".";
     room.mediumUsed = true; room.night.done[player.id] = true; advanceNight(room); return;
   }
   if (sub === "witch" && player.role === "witch") {
