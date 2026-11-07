@@ -112,6 +112,7 @@ function render(s) {
   ).join("");
   $("chatMessages").scrollTop = $("chatMessages").scrollHeight;
   $("timer").textContent = s.endsAt ? formatTime(Math.max(0, Math.ceil((s.endsAt - Date.now()) / 1000))) : "—";
+  renderHistory(s);
   renderAction(s);
   if (s.phase === "ended") {
     $("actionTitle").textContent = "Ván chơi kết thúc";
@@ -155,6 +156,33 @@ function renderRoleCard(me) {
   $("guideToggle").textContent = guideOpen ? "Ẩn hướng dẫn" : "📖 Xem hướng dẫn cách chơi role này";
 }
 
+
+function renderHistory(s) {
+  const events = Array.isArray(s.history) ? s.history : [];
+  $("historyPanel").classList.toggle("hidden", s.status === "lobby");
+  $("historyCount").textContent = events.length + " sự kiện";
+  if (!events.length) {
+    $("historyList").innerHTML = '<div class="history-empty">Chưa có diễn biến nào được ghi nhận.</div>';
+    return;
+  }
+  const labelFor = event => {
+    if (event.phase === "night") return "ĐÊM " + (Number(event.day || 0) + 1);
+    if (event.phase === "discussion" || event.phase === "vote" || event.phase === "intermission") return "NGÀY " + Math.max(1, Number(event.day || 0));
+    if (event.phase === "ended") return "KẾT QUẢ";
+    return "DIỄN BIẾN";
+  };
+  $("historyList").innerHTML = events.slice().reverse().map(event => {
+    const time = event.timestamp ? new Date(event.timestamp).toLocaleTimeString("vi-VN", {hour:"2-digit",minute:"2-digit"}) : "";
+    const privateEvent = event.visibility === "private";
+    const kind = ["phase","result","private"].includes(event.kind) ? event.kind : "system";
+    return '<article class="history-item ' + kind + (privateEvent ? ' private-event' : '') + '">' +
+      '<div class="history-marker"></div><div class="history-content">' +
+      '<div class="history-meta"><span>' + labelFor(event) + '</span>' +
+      (privateEvent ? '<b class="private-tag">RIÊNG BẠN</b>' : '<b class="public-tag">CÔNG KHAI</b>') +
+      '<time>' + esc(time) + '</time></div>' +
+      '<p>' + esc(event.message) + '</p></div></article>';
+  }).join("");
+}
 function renderAction(s) {
   const me = s.self;
   let html = "";
