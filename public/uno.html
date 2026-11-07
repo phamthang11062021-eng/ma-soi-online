@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111827"><title>Bài Màu Số Online – Game Center</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/uno.css"></head>
+<body><main class="uno-shell">
+<header class="uno-header"><a class="brand" href="/"><span class="brand-icon">G</span><span>GAME CENTER<small>PLAY WITH FRIENDS</small></span></a><a class="back-link" href="/">← Tất cả trò chơi</a></header>
+<section id="unoHome" class="uno-panel home-panel">
+<div class="eyebrow">BÀI LÁ · NHANH TAY · VUI HẾT MÌNH</div><h1>BÀI MÀU <em>SỐ</em></h1><p class="intro">Đánh bài theo màu hoặc số, dùng lá chức năng và gọi UNO trước khi đối thủ bắt lỗi. Mời từ 2 đến 10 người cùng chơi.</p>
+<div class="entry-grid"><label>Tên hiển thị<input id="unoName" maxlength="18" placeholder="Nhập tên của bạn"></label><button id="unoCreate" class="primary">Tạo phòng mới ↗</button></div>
+<div class="join-row"><input id="unoCode" maxlength="6" placeholder="MÃ PHÒNG"><button id="unoJoin" class="secondary">Tham gia phòng</button></div>
+<div class="rules-note"><b>Luật cơ bản</b><span>7 lá mỗi người · 4 màu · +2 · +4 · Đảo chiều · Cấm lượt · Gọi UNO</span></div>
+</section>
+<section id="unoRoom" class="hidden">
+<div class="room-heading"><div><div class="eyebrow" id="roomStatus">SẢNH CHỜ</div><h1>PHÒNG <span id="unoRoomCode">------</span></h1></div><button id="copyUnoCode" class="secondary">Sao chép mã</button></div>
+<div id="unoNotice" class="notice">Đang chờ người chơi...</div>
+<section id="unoLobby" class="uno-panel">
+<div class="panel-title"><div><span class="eyebrow">CÙNG TỤ HỌP</span><h2>Người chơi <small id="unoPlayerCount">1/10</small></h2></div><span class="host-label">CHỦ PHÒNG QUẢN LÝ</span></div>
+<div id="unoLobbyPlayers" class="lobby-players"></div>
+<div class="lobby-actions"><button id="unoReady" class="secondary">Tôi đã sẵn sàng</button><button id="unoStart" class="primary hidden">BẮT ĐẦU VÁN</button></div>
+<div id="unoHostSettings" class="host-settings hidden"><div class="settings-title">CÀI ĐẶT PHÒNG <span>CHỈ CHỦ PHÒNG</span></div><div class="settings-grid">
+<label>Thời gian mỗi lượt<select id="unoTurnSeconds"><option value="15">15 giây</option><option value="20">20 giây</option><option value="30" selected>30 giây</option><option value="45">45 giây</option><option value="60">60 giây</option><option value="90">90 giây</option></select></label>
+<label class="check-setting"><input type="checkbox" id="unoAllowDraw" checked> Được đánh lá vừa rút</label>
+<label class="check-setting"><input type="checkbox" id="unoPenalty" checked> Phạt quên gọi UNO</label>
+</div><button id="unoSaveSettings" class="secondary">Lưu cài đặt</button></div>
+</section>
+<section id="unoGame" class="uno-panel hidden">
+<div class="game-topline"><div><span class="eyebrow">LƯỢT HIỆN TẠI</span><h2 id="unoTurnName">Đang chờ...</h2></div><div class="turn-clock"><span>THỜI GIAN</span><b id="unoTimer">--</b></div></div>
+<div id="unoOpponents" class="opponents"></div>
+<div class="table-center">
+<div class="deck-stack" id="unoDraw"><div class="deck-back"><span>GAME<br>CENTER</span></div><small id="unoDrawCount">RÚT BÀI</small></div>
+<div class="discard-stack"><div id="unoTopCard" class="playing-card red"><span class="card-corner">7</span><b>7</b><span class="card-corner bottom">7</span></div><small>ĐANG ĐÁNH</small></div>
+<div class="color-indicator"><span id="unoColorDot"></span><small id="unoColorName">ĐỎ</small><small id="unoDirection">↻</small></div>
+</div>
+<div class="turn-message" id="unoTurnMessage">Đến lượt người chơi.</div>
+<div id="unoActionBar" class="action-bar"></div>
+<div class="my-hand-area"><div class="hand-heading"><span>BÀI CỦA BẠN</span><b id="unoHandCount">0 lá</b></div><div id="unoHand" class="my-hand"></div></div>
+</section>
+<section id="unoResult" class="uno-panel result-panel hidden"><div class="eyebrow">VÁN ĐẤU KẾT THÚC</div><h2 id="unoWinner">CHIẾN THẮNG!</h2><p id="unoResultText"></p><button id="unoReplay" class="primary hidden">CHƠI LẠI VÁN MỚI</button></section>
+<section class="uno-panel chat-panel"><div class="panel-title"><h2>Trò chuyện</h2><span class="eyebrow">CHAT PHÒNG</span></div><div id="unoChatMessages" class="chat-messages"></div><form id="unoChatForm"><input id="unoChatInput" maxlength="240" placeholder="Nhắn gì đó với mọi người..."><button class="primary" type="submit">Gửi</button></form></section>
+<div class="room-footer"><span id="unoSelfStatus"></span><button id="unoLeave" class="text-button">Rời phòng</button></div>
+</section>
+<footer>GAME CENTER · BÀI MÀU SỐ ONLINE</footer></main>
+<div id="unoColorModal" class="modal hidden"><div class="modal-card"><h2>CHỌN MÀU TIẾP THEO</h2><p>Lá bài này sẽ đổi màu đang chơi.</p><div class="color-options"><button data-color="red" class="red"></button><button data-color="yellow" class="yellow"></button><button data-color="green" class="green"></button><button data-color="blue" class="blue"></button></div></div></div>
+<div id="unoToast" class="toast"></div><script src="/socket.io/socket.io.js"></script><script src="/uno.js"></script></body></html>
