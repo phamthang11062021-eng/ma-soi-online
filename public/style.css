@@ -71,3 +71,5 @@ button:disabled{opacity:.4;cursor:not-allowed;transform:none}
   .player-tile .player-action{font-size:8px;padding:5px 4px}
   .role-card{max-width:100%}
 }
+
+.player-tile.managed{padding-bottom:34px}
