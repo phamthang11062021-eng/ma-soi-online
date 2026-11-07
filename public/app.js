@@ -73,11 +73,12 @@ function render(s) {
     s.phase === "vote" ? "BỎ PHIẾU · NGÀY " + s.day :
     s.phase === "deathshot" ? "PHÁT SÚNG CUỐI CÙNG" : s.phase === "intermission" ? "KẾT QUẢ BỎ PHIẾU" : "KẾT THÚC";
   $("players").innerHTML = s.players.map((p, i) =>
-    '<div class="player ' + (!p.alive ? "dead" : "") + '">' +
-    '<div class="avatar">' + (i + 1) + '</div><span class="player-name">' + esc(p.name) + '</span>' +
+    '<div class="player-tile ' + (!p.alive ? "dead" : "alive") + '">' +
+    '<div class="tile-art"><span class="tile-spark">✦</span><span class="tile-person">♟</span><span class="tile-number">' + String(i + 1).padStart(2, "0") + '</span></div>' +
+    '<div class="tile-name">' + esc(p.name) + '</div>' +
     (p.isHost ? '<span class="host-badge">👑 CHỦ PHÒNG</span>' : '') +
-    '<span class="status">' + (p.alive ? (p.ready ? "Sẵn sàng" : "Còn sống") : "Đã bị loại") +
-    (p.connected ? "" : " · Mất kết nối") + '</span>' +
+    '<span class="tile-status">' + (!p.alive ? "✕ ĐÃ CHẾT" : (p.ready ? "✓ SẴN SÀNG" : "● CÒN SỐNG")) +
+    (p.connected ? "" : " · MẤT KẾT NỐI") + '</span>' +
     (p.canManage ? '<div class="player-actions"><button class="player-action" data-transfer="' + p.id + '">Chuyển chủ</button><button class="player-action kick" data-kick="' + p.id + '">Kick</button></div>' : '') +
     (s.isRevealed ? '<span class="revealed-role">' + esc(p.role || "") + '</span>' : "") + '</div>'
   ).join("");
@@ -121,6 +122,17 @@ function renderRoleCard(me) {
     currentGuideRole = me.role;
     guideOpen = true;
   }
+  const roleArt = {
+    wolf: ["🐺", "PHE MA SÓI"], villager: ["🧑‍🌾", "PHE DÂN LÀNG"],
+    seer: ["🔮", "PHE DÂN LÀNG"], witch: ["🧙‍♀️", "PHE DÂN LÀNG"],
+    protector: ["🛡️", "PHE DÂN LÀNG"], hunter: ["🏹", "PHE DÂN LÀNG"],
+    cupid: ["💘", "THẦN TÌNH YÊU"], elder: ["🧓", "PHE DÂN LÀNG"],
+    littleGirl: ["🕯️", "PHE DÂN LÀNG"], mayor: ["👑", "PHE DÂN LÀNG"],
+    medium: ["🔔", "PHE DÂN LÀNG"]
+  };
+  const art = roleArt[me.role] || ["✦", "BÍ MẬT"];
+  $("roleArt").textContent = art[0];
+  $("roleTeam").textContent = art[1];
   $("roleName").textContent = me.roleName;
   $("roleDesc").textContent = me.roleDescription;
   const privateBits = [me.privateInfo, me.privateNote, me.loverName ? "Người yêu của bạn: " + me.loverName : "",
