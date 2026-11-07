@@ -234,6 +234,10 @@ function publicState(room, player) {
   }
   const notes = me && room.privateNotes[me.id] ? room.privateNotes[me.id] : "";
   const guide = me && me.role ? ROLE_GUIDES[me.role] : null;
+  if (me && me.role === "cupid" && room.loverPair) {
+    const pairNames = room.loverPair.map(id => (getPlayer(room, id) || {}).name).filter(Boolean);
+    privateInfo = "Đôi tình nhân bạn đã ghép: " + pairNames.join(" và ");
+  }
   return {
     code: room.code, status: room.status, phase: room.phase, subphase: room.subphase || "",
     day: room.day, players: others, playerCount: room.players.length,
