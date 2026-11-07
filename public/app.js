@@ -65,7 +65,7 @@ function render(s) {
     s.phase === "night" ? "ĐÊM " + s.day :
     s.phase === "discussion" ? "THẢO LUẬN · NGÀY " + s.day :
     s.phase === "vote" ? "BỎ PHIẾU · NGÀY " + s.day :
-    s.phase === "deathshot" ? "PHÁT SÚNG CUỐI CÙNG" : "KẾT THÚC";
+    s.phase === "deathshot" ? "PHÁT SÚNG CUỐI CÙNG" : s.phase === "intermission" ? "KẾT QUẢ BỎ PHIẾU" : "KẾT THÚC";
   $("players").innerHTML = s.players.map((p, i) =>
     '<div class="player ' + (!p.alive ? "dead" : "") + '">' +
     '<div class="avatar">' + (i + 1) + '</div><span>' + esc(p.name) + '</span>' +
