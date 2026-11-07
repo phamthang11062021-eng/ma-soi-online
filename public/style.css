@@ -73,3 +73,6 @@ button:disabled{opacity:.4;cursor:not-allowed;transform:none}
 }
 
 .player-tile.managed{padding-bottom:34px}
+
+.replay-button{margin-top:14px;min-height:48px;font-weight:900;letter-spacing:.5px;background:linear-gradient(135deg,#8c6b38,#c29a55);color:#171717;border:1px solid #e3c17f;box-shadow:0 8px 22px #0004}
+.replay-button:disabled{opacity:.55}
