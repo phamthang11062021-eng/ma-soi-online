@@ -68,7 +68,7 @@ function renderActions(g,me,myTurn){
   html+='<div class="mp-assets">'+ownedAssets(g,me,true)+'</div>';
  }else if(g.auction){
   const passed=g.auction.passed.includes(me.id),high=g.auction.highBidderId===me.id;
-  html+='<div class="mp-action-note">Đấu giá '+esc(g.board[g.auction.spaceId].name)+'. Giá hiện tại: <b>'+money(g.auction.currentBid)+' xu</b>. '+(g.auction.highBidderId?"Người dẫn giá: "+esc(g.players.find(p=>p.id===g.auction.highBidderId)?.name||""):"Chưa có giá").+'</div>';
+  html+='<div class="mp-action-note">Đấu giá '+esc(g.board[g.auction.spaceId].name)+'. Giá hiện tại: <b>'+money(g.auction.currentBid)+' xu</b>. '+(g.auction.highBidderId?"Người dẫn giá: "+esc(g.players.find(p=>p.id===g.auction.highBidderId)?.name||""):"Chưa có giá")+'</div>';
   if(!passed&&!high)html+='<div class="mp-action-row"><input id="mpBid" class="mp-bid-input" type="number" min="'+(g.auction.currentBid+1)+'" max="'+me.money+'" placeholder="Giá trả"><button id="mpBidButton" class="mp-primary">TRẢ GIÁ</button></div><button id="mpPassBid" class="mp-secondary">BỎ LƯỢT ĐẤU GIÁ</button>';
   else html+='<p>'+(high?"Bạn đang dẫn giá. Chờ người khác phản hồi.":"Bạn đã bỏ lượt đấu giá.")+'</p>';
  }else if(g.pending?.type==="purchase"){
