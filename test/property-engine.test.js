@@ -18,7 +18,7 @@ test("roll moves current player and pays salary when passing start",()=>{
 });
 test("landing on unowned property creates purchase prompt and buy transfers ownership",()=>{
  const g=gameEngine.createGame(players());
- gameEngine.roll(g,"a",[1,0+1]);
+ gameEngine.roll(g,"a",[1,2]);
  assert.equal(g.pending.type,"purchase");
  const space=g.pending.spaceId;
  const before=g.players[0].money;
@@ -28,7 +28,7 @@ test("landing on unowned property creates purchase prompt and buy transfers owne
 });
 test("declining purchase opens auction and highest bidder wins",()=>{
  const g=gameEngine.createGame(players());
- gameEngine.roll(g,"a",[1,1]);
+ gameEngine.roll(g,"a",[1,2]);
  const id=g.pending.spaceId;
  gameEngine.declinePurchase(g,"a");
  gameEngine.bid(g,"a",100);
