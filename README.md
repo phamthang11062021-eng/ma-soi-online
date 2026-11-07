@@ -91,3 +91,14 @@ Trong sảnh chờ, chủ phòng có thể cấu hình:
 - Chế độ chia role tự động hoặc tùy chỉnh danh sách role đặc biệt.
 
 Máy chủ kiểm tra quyền Host và kiểm tra giá trị cài đặt trước khi lưu. Cài đặt chỉ thay đổi trong sảnh chờ; thay đổi không được chấp nhận sau khi ván bắt đầu.
+
+
+## Nhật ký trận đấu và phân quyền thông tin
+
+Trong một ván chơi, hệ thống ghi nhận tối đa 150 sự kiện gần nhất:
+- Công khai: bắt đầu ván, bắt đầu đêm/ngày, kết quả bình minh, kết quả bỏ phiếu, phát súng cuối và phe chiến thắng.
+- Riêng tư: lượt hành động và kết quả chỉ gửi tới đúng người chơi được phép xem (ví dụ Tiên tri, Phù thủy, Bảo vệ, Ma sói, Cô bé, Thầy đồng, Thần tình yêu và đôi tình nhân).
+- Nhật ký công khai và riêng tư được lọc ở máy chủ trước khi gửi trạng thái tới từng socket. Danh sách người nhận sự kiện bí mật không được gửi xuống trình duyệt.
+- Khi chơi lại, nhật ký ván trước được xóa để bắt đầu một lịch sử mới.
+
+Chạy kiểm thử bằng `npm test`. Bộ test kiểm tra quyền xem lịch sử công khai/riêng tư, không rò rỉ danh sách người nhận và giới hạn dung lượng nhật ký.
