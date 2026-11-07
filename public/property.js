@@ -93,6 +93,7 @@ function renderActions(g,me,myTurn){
  bind("mpPayJail",()=>socket.emit("gc:property:payJail"));
  bind("mpTradeAccept",()=>socket.emit("gc:property:trade:respond",{accept:true}));bind("mpTradeReject",()=>socket.emit("gc:property:trade:respond",{accept:false}));
  box.querySelectorAll("[data-build]").forEach(b=>b.onclick=()=>socket.emit("gc:property:build",{spaceId:Number(b.dataset.build)}));
+ box.querySelectorAll("[data-sell-house]").forEach(b=>b.onclick=()=>socket.emit("gc:property:sellHouse",{spaceId:Number(b.dataset.sellHouse)}));
  box.querySelectorAll("[data-mortgage]").forEach(b=>b.onclick=()=>socket.emit("gc:property:mortgage",{spaceId:Number(b.dataset.mortgage)}));
  box.querySelectorAll("[data-unmortgage]").forEach(b=>b.onclick=()=>socket.emit("gc:property:unmortgage",{spaceId:Number(b.dataset.unmortgage)}));
 }
@@ -101,7 +102,7 @@ function ownedAssets(g,me,debtMode){
  return me.properties.map(id=>{
   const sp=g.board[id],info=sp;
   let controls="";
-  if(info.houses>0)controls+='<small>⌂ '+info.houses+'</small>';
+  if(info.houses>0)controls+='<small>⌂ '+info.houses+'</small><button data-sell-house="'+id+'">− Nhà</button>';
   if(!info.mortgaged&&info.type==="property")controls+='<button data-build="'+id+'">+ Nhà</button>';
   if(info.mortgaged)controls+='<button data-unmortgage="'+id+'">Chuộc</button>';
   else if(info.houses===0)controls+='<button data-mortgage="'+id+'">Thế chấp</button>';
@@ -110,7 +111,7 @@ function ownedAssets(g,me,debtMode){
 }
 function renderTrade(g,me){
  const box=$("mpTradeArea");
- if(g.trade){const from=g.players.find(p=>p.id===g.trade.fromId),to=g.players.find(p=>p.id===g.trade.toId);box.innerHTML='<div class="mp-trade-pending">'+esc(from?.name||"")+' gửi đề nghị tới '+esc(to?.name||"")+'.<br>Tiền: '+money(g.trade.giveMoney)+' xu ↔ '+money(g.trade.takeMoney)+' xu<br>Tài sản trao đổi: '+g.trade.giveIds.map(id=>esc(g.board[id].name)).join(", ")+' ↔ '+g.trade.takeIds.map(id=>esc(g.board[id].name)).join(", ")+'</div>';return}
+ if(g.trade){const from=g.players.find(p=>p.id===g.trade.fromId),to=g.players.find(p=>p.id===g.trade.toId);box.innerHTML='<div class="mp-trade-pending">'+esc(from?.name||"")+' gửi đề nghị tới '+esc(to?.name||"")+'.<br>Tiền: '+money(g.trade.giveMoney)+' xu ↔ '+money(g.trade.takeMoney)+' xu<br>Tài sản trao đổi: '+g.trade.giveIds.map(id=>esc(g.board[id].name)).join(", ")+' ↔ '+g.trade.takeIds.map(id=>esc(g.board[id].name)).join(", ")+'</div>'+(g.trade.fromId===me.id?'<button id="mpCancelTrade" class="mp-secondary">HỦY ĐỀ NGHỊ</button>':'');const cancel=$("mpCancelTrade");if(cancel)cancel.onclick=()=>socket.emit("gc:property:trade:cancel");return}
  const targets=g.players.filter(p=>p.id!==me.id&&!p.bankrupt);
  if(!targets.length){box.innerHTML='<p class="mp-action-note">Cần thêm người chơi để giao dịch.</p>';return}
  const myProps=me.properties.map(id=>'<option value="'+id+'">'+esc(g.board[id].name)+'</option>').join("");
