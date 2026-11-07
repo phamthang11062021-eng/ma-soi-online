@@ -7,7 +7,7 @@ function toast(message){$("unoToast").textContent=message;$("unoToast").classLis
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function enterRoom(code,newToken){roomCode=code;token=newToken;sessionStorage.setItem("gc-uno-session",JSON.stringify({code,token,name:$("unoName").value.trim()}));$("unoHome").classList.add("hidden");$("unoRoom").classList.remove("hidden");$("unoRoomCode").textContent=code}
 $("unoCreate").onclick=()=>{const name=$("unoName").value.trim();if(!name)return toast("Nhập tên của bạn trước nhé.");socket.emit("gc:createRoom",{gameType:"uno",name})};
-$("unoJoin").onclick=()=>{const name=$("unoName").value.trim(),code=$("unoCode").value.trim().toUpperCase();if(!name||!code)return toast("Nhập tên và mã phòng nhé.");socket.emit("gc:joinRoom",{name,code})};
+$("unoJoin").onclick=()=>{const name=$("unoName").value.trim(),code=$("unoCode").value.trim().toUpperCase();if(!name||!code)return toast("Nhập tên và mã phòng nhé.");socket.emit("gc:joinRoom",{name,code,gameType:"uno"})};
 $("copyUnoCode").onclick=async()=>{try{await navigator.clipboard.writeText(roomCode);toast("Đã sao chép mã phòng "+roomCode)}catch{toast("Mã phòng: "+roomCode)}};
 $("unoReady").onclick=()=>socket.emit("gc:ready");
 $("unoStart").onclick=()=>socket.emit("gc:host:start");
@@ -15,7 +15,7 @@ $("unoSaveSettings").onclick=()=>socket.emit("gc:host:settings",{turnSeconds:Num
 $("unoLeave").onclick=()=>{socket.emit("gc:leaveRoom");sessionStorage.removeItem("gc-uno-session");location.href="/"};
 $("unoChatForm").onsubmit=e=>{e.preventDefault();const message=$("unoChatInput").value.trim();if(message){socket.emit("gc:chat",{message});$("unoChatInput").value=""}};
 $("unoReplay").onclick=()=>socket.emit("gc:restart");
-socket.on("connect",()=>{if(saved.code&&saved.token){$("unoName").value=saved.name||"";socket.emit("gc:joinRoom",{code:saved.code,token:saved.token,name:saved.name||""})}});
+socket.on("connect",()=>{if(saved.code&&saved.token){$("unoName").value=saved.name||"";socket.emit("gc:joinRoom",{code:saved.code,token:saved.token,name:saved.name||"",gameType:"uno"})}});
 socket.on("gc:joined",data=>enterRoom(data.code,data.token));
 socket.on("gc:error",toast);
 socket.on("gc:kicked",data=>{sessionStorage.removeItem("gc-uno-session");$("unoRoom").classList.add("hidden");$("unoHome").classList.remove("hidden");toast(data.message||"Bạn đã bị mời khỏi phòng.")});
