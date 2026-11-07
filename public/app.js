@@ -1,7 +1,7 @@
 const socket = io();
 const $ = (id) => document.getElementById(id);
 let state = null, selected = null, myToken = "", myCode = "", toastTimer = null;
-let currentGuideRole = null, guideOpen = true, cupidSelected = [];
+let currentGuideRole = null, guideOpen = true, cupidSelected = [], renderedSettingsKey = "";
 const showToast = (msg) => {
   $("toast").textContent = msg;
   $("toast").classList.add("show");
@@ -64,7 +64,7 @@ socket.on("state", render);
 function render(s) {
   state = s; selected = null;
   $("roomCodeLabel").textContent = s.code;
-  $("countLabel").textContent = s.playerCount + "/16";
+  $("countLabel").textContent = s.playerCount + "/" + ((s.settings && s.settings.maxPlayers) || 16);
   $("notice").textContent = s.announcement || "";
   $("phaseLabel").textContent =
     s.phase === "lobby" ? "SẢNH CHỜ" :
@@ -102,8 +102,10 @@ function render(s) {
   $("startBtn").style.opacity = s.canStart ? "1" : ".45";
   const hostPlayer = s.players.find(p => p.isHost);
   $("hostHint").textContent = me && me.isHost
-    ? "👑 Bạn là chủ phòng. Có thể bắt đầu, kick hoặc chuyển quyền cho người khác."
+    ? "👑 Bạn là chủ phòng. Có thể bắt đầu, kick, chuyển quyền và cài đặt ván chơi."
     : "Chủ phòng: " + (hostPlayer ? hostPlayer.name : "đang được chuyển giao") + ". Chỉ chủ phòng mới được bắt đầu và quản lý người chơi.";
+  $("hostSettings").classList.toggle("hidden", !(me && me.isHost && s.status === "lobby"));
+  syncHostSettings(s.settings || {});
   $("chatArea").classList.toggle("hidden", s.phase !== "discussion" || !me || !me.alive);
   $("chatMessages").innerHTML = (s.chat || []).map(m =>
     '<div class="chat-msg"><b>' + esc(m.name) + '</b>' + esc(m.message) + '</div>'
@@ -247,6 +249,39 @@ function renderAction(s) {
   };
   const ready = $("readyVoteBtn"); if (ready) ready.onclick = () => socket.emit("readyVote");
 }
+
+
+function syncHostSettings(settings) {
+  const key = JSON.stringify(settings);
+  if (key === renderedSettingsKey) return;
+  renderedSettingsKey = key;
+  $("settingMaxPlayers").value = String(settings.maxPlayers || 16);
+  $("settingDiscussion").value = String(settings.discussionSeconds || 180);
+  $("settingVote").value = String(settings.voteSeconds || 45);
+  $("settingNight").value = String(settings.nightSeconds || 35);
+  $("settingWolfCount").value = String(settings.wolfCount ?? 0);
+  $("settingRoleMode").value = settings.customRoles ? "custom" : "auto";
+  $("customRoleSettings").classList.toggle("hidden", !settings.customRoles);
+  document.querySelectorAll("input[name='enabledRoles']").forEach(input => {
+    input.checked = Array.isArray(settings.enabledRoles) && settings.enabledRoles.includes(input.value);
+  });
+}
+$("settingRoleMode").addEventListener("change", () => {
+  $("customRoleSettings").classList.toggle("hidden", $("settingRoleMode").value !== "custom");
+});
+$("saveHostSettingsBtn").onclick = () => {
+  const enabledRoles = Array.from(document.querySelectorAll("input[name='enabledRoles']:checked")).map(input => input.value);
+  socket.emit("hostSettings", {
+    maxPlayers: Number($("settingMaxPlayers").value),
+    discussionSeconds: Number($("settingDiscussion").value),
+    voteSeconds: Number($("settingVote").value),
+    nightSeconds: Number($("settingNight").value),
+    wolfCount: Number($("settingWolfCount").value),
+    customRoles: $("settingRoleMode").value === "custom",
+    enabledRoles
+  });
+  showToast("Đã gửi cài đặt lên máy chủ để xác nhận.");
+};
 
 function esc(v) {
   return String(v ?? "").replace(/[&<>"']/g, c => ({
