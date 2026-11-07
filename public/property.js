@@ -105,7 +105,7 @@ function ownedAssets(g,me,debtMode){
   if(info.houses>0)controls+='<small>⌂ '+info.houses+'</small><button data-sell-house="'+id+'">− Nhà</button>';
   if(!info.mortgaged&&info.type==="property")controls+='<button data-build="'+id+'">+ Nhà</button>';
   if(info.mortgaged)controls+='<button data-unmortgage="'+id+'">Chuộc</button>';
-  else if(info.houses===0)controls+='<button data-mortgage="'+id+'">Thế chấp</button>';
+  else if((info.houses||0)===0)controls+='<button data-mortgage="'+id+'">Thế chấp</button>';
   return '<div class="mp-asset"><span>'+esc(sp.name)+'</span><span>'+controls+'</span></div>'
  }).join("");
 }
