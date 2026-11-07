@@ -551,6 +551,43 @@ io.on("connection", (socket) => {
     if (!startGame(room, p.id)) return sendError(socket, "Cần ít nhất 5 người và tất cả người chơi phải sẵn sàng.");
     broadcast(room);
   });
+  socket.on("replayGame", () => {
+    const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
+    if (!room) return;
+    const host = room.players.find(p => p.socketId === socket.id);
+    if (!host || host.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng mới có quyền tạo ván chơi lại.");
+    if (room.status !== "ended") return sendError(socket, "Chỉ có thể chơi lại sau khi ván hiện tại kết thúc.");
+
+    clearTimer(room);
+    room.status = "lobby";
+    room.phase = "lobby";
+    room.subphase = "";
+    room.day = 0;
+    room.winner = null;
+    room.night = null;
+    room.votes = {};
+    room.voteReady = new Set();
+    room.chat = [];
+    room.privateNotes = {};
+    room.witchSaveAvailable = true;
+    room.witchPoisonAvailable = true;
+    room.lastProtected = null;
+    room.elderShieldUsed = false;
+    room.mediumUsed = false;
+    room.loverPair = null;
+    room.hunterShotUsed = new Set();
+    room.hunterQueue = [];
+    room.currentHunterShot = null;
+    room.afterDeathCallback = null;
+    room.pendingDeathNames = [];
+    room.players.forEach(p => {
+      p.role = null;
+      p.alive = true;
+      p.ready = false;
+    });
+    room.announcement = "Ván trước đã kết thúc. Chủ phòng đã mở sảnh cho ván mới — mọi người hãy sẵn sàng nhé!";
+    broadcast(room);
+  });
   socket.on("kickPlayer", (data) => {
     const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
     if (!room || room.status !== "lobby") return sendError(socket, "Chỉ có thể kick người chơi khi phòng đang ở sảnh chờ.");
