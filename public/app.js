@@ -73,7 +73,7 @@ function render(s) {
     s.phase === "vote" ? "BỎ PHIẾU · NGÀY " + s.day :
     s.phase === "deathshot" ? "PHÁT SÚNG CUỐI CÙNG" : s.phase === "intermission" ? "KẾT QUẢ BỎ PHIẾU" : "KẾT THÚC";
   $("players").innerHTML = s.players.map((p, i) =>
-    '<div class="player-tile ' + (!p.alive ? "dead" : "alive") + '">' +
+    '<div class="player-tile ' + (!p.alive ? "dead" : "alive") + (p.canManage ? " managed" : "") + '">' +
     '<div class="tile-art"><span class="tile-spark">✦</span><span class="tile-person">♟</span><span class="tile-number">' + String(i + 1).padStart(2, "0") + '</span></div>' +
     '<div class="tile-name">' + esc(p.name) + '</div>' +
     (p.isHost ? '<span class="host-badge">👑 CHỦ PHÒNG</span>' : '') +
