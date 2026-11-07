@@ -431,6 +431,7 @@ function finishVoteAfterDeaths(room) {
   if (room.status !== "playing") return;
   if (room.pendingDeathNames.length) room.announcement = "Kết quả bỏ phiếu: " + room.pendingDeathNames.join(", ") + " bị loại.";
   if (checkWin(room)) { broadcast(room); return; }
+  room.phase = "intermission"; room.subphase = "";
   broadcast(room); setTimer(room, 3.5, () => { if (room.status === "playing") startNight(room); });
 }
 function handleNightAction(socket, room, player, data) {
