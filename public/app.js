@@ -162,7 +162,10 @@ function renderAction(s) {
     html = '<div class="action-prompt">Hãy thảo luận để tìm ra Ma sói. Khi đã sẵn sàng, bấm nút bên dưới để chuyển sang bỏ phiếu.</div>' +
       '<button class="primary wide" id="readyVoteBtn">Tôi đã sẵn sàng bỏ phiếu (' + s.voteReadyCount + ')</button>';
   } else if (s.phase === "ended") {
-    html = '<div class="empty-state">' + esc(s.announcement) + '<br><small>Vai trò của tất cả người chơi đã được công khai.</small></div>';
+    html = '<div class="empty-state">' + esc(s.announcement) + '<br><small>Vai trò của tất cả người chơi đã được công khai.</small></div>' +
+      (me && me.isHost
+        ? '<button class="primary wide replay-button" id="replayBtn">🔄 CHƠI LẠI VÁN MỚI</button><p class="hint">Bạn sẽ trở về sảnh chờ. Mọi người cần sẵn sàng lại trước khi bắt đầu.</p>'
+        : '<p class="hint">Đang chờ chủ phòng mở ván mới...</p>');
   } else if (s.phase === "deathshot") {
     if (me && me.actionType === "hunterShot") {
       html = '<div class="action-prompt">Bạn đã bị loại nhưng còn một phát súng cuối. Chọn mục tiêu trong 20 giây.</div>' +
@@ -235,6 +238,13 @@ function renderAction(s) {
   const save = $("saveBtn"); if (save) save.onclick = () => socket.emit("nightAction", { action: "save" });
   const skip = $("skipBtn"); if (skip) skip.onclick = () => socket.emit("nightAction", { action: "skip" });
   const peek = $("peekBtn"); if (peek) peek.onclick = () => { peek.disabled = true; socket.emit("nightAction", { action: "peek" }); };
+  const replay = $("replayBtn");
+  if (replay) replay.onclick = () => {
+    if (window.confirm("Mở lại sảnh chờ cho ván mới? Tất cả người chơi sẽ cần sẵn sàng lại.")) {
+      replay.disabled = true;
+      socket.emit("replayGame");
+    }
+  };
   const ready = $("readyVoteBtn"); if (ready) ready.onclick = () => socket.emit("readyVote");
 }
 
