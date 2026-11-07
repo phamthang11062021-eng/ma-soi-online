@@ -312,7 +312,7 @@ function setNightStep(room, index) {
   steps.push("protect", "wolves", "seer", "medium", "witch");
   while (index < steps.length) {
     const step = steps[index];
-    const role = step === "wolves" ? "wolf" : step;
+    const role = step === "wolves" ? "wolf" : step === "protect" ? "protector" : step;
     let players = alive(room).filter(p => p.role === role);
     if (step === "medium" && (room.mediumUsed || !room.players.some(p => !p.alive))) players = [];
     if (players.length) {
