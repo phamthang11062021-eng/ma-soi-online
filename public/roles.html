@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0d13">
+  <title>Thư viện nhân vật — Ma Sói Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/roles.css">
+</head>
+<body>
+  <div class="mist mist-one"></div><div class="mist mist-two"></div>
+  <main class="library-shell">
+    <header class="library-header">
+      <a class="brand" href="/" aria-label="Trở về trang chủ"><span class="brand-mark">☾</span><span>MA SÓI <b>ONLINE</b><small>THƯ VIỆN NHÂN VẬT</small></span></a>
+      <a class="back-link" href="/">← Trở về sảnh chính</a>
+    </header>
+
+    <section class="intro">
+      <div class="eyebrow">THE VILLAGE ARCHIVE · 01</div>
+      <h1>Những bí mật<br><em>ẩn sau mỗi lá bài</em></h1>
+      <p>Khám phá phe phái, mục tiêu và năng lực của từng nhân vật. Các role đang chơi được đánh dấu riêng với những nhân vật dự kiến phát triển trong tương lai.</p>
+      <div class="intro-stats">
+        <div><strong id="playableCount">11</strong><span>ĐANG CÓ TRONG GAME</span></div>
+        <i></i>
+        <div><strong id="plannedCount">10</strong><span>Ý TƯỞNG PHÁT TRIỂN</span></div>
+      </div>
+    </section>
+
+    <section class="catalog">
+      <div class="catalog-top">
+        <div><div class="eyebrow">CHARACTER INDEX</div><h2>Danh mục nhân vật</h2></div>
+        <label class="search"><span>⌕</span><input id="roleSearch" type="search" placeholder="Tìm tên nhân vật..." autocomplete="off"></label>
+      </div>
+      <nav class="filters" aria-label="Lọc nhân vật">
+        <button class="filter active" data-filter="all">Tất cả</button>
+        <button class="filter" data-filter="playable">Đang có trong game</button>
+        <button class="filter" data-filter="town">Phe dân</button>
+        <button class="filter" data-filter="wolf">Phe sói</button>
+        <button class="filter" data-filter="independent">Độc lập / đặc biệt</button>
+        <button class="filter" data-filter="planned">Sắp phát triển</button>
+      </nav>
+      <div id="roleGrid" class="role-grid" aria-live="polite"></div>
+      <p id="emptyState" class="empty-state hidden">Không tìm thấy nhân vật phù hợp.</p>
+    </section>
+
+    <footer class="library-footer"><span>MA SÓI ONLINE</span><span>·</span><span>Giữ bí mật. Quan sát. Sống sót.</span></footer>
+  </main>
+  <script src="/roles.js"></script>
+</body>
+</html>
