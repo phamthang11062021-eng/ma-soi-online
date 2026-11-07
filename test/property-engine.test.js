@@ -124,3 +124,25 @@ test("timed game ends and chooses the player with greatest asset value",()=>{
  assert.equal(result.winnerId,"a");
  assert.equal(g.status,"ended");
 });
+
+test("houses can be sold evenly to raise cash",()=>{
+ const g=gameEngine.createGame(players());
+ g.players[0].properties=[1,3];
+ g.properties[1]={ownerId:"a",houses:0,mortgaged:false};
+ g.properties[3]={ownerId:"a",houses:0,mortgaged:false};
+ gameEngine.build(g,"a",1);gameEngine.build(g,"a",3);
+ const before=g.players[0].money;
+ gameEngine.sellHouse(g,"a",1);
+ assert.equal(g.properties[1].houses,0);
+ assert.equal(g.players[0].money,before+25);
+ assert.throws(()=>gameEngine.sellHouse(g,"a",1),/không có nhà/);
+});
+test("trade proposals cannot duplicate properties or overwrite another pending trade",()=>{
+ const g=gameEngine.createGame(players());
+ g.players[0].properties=[1];g.properties[1]={ownerId:"a",houses:0,mortgaged:false};
+ assert.throws(()=>gameEngine.offerTrade(g,"a",{toId:"b",givePropertyIds:[1,1]}),/trùng tài sản/);
+ gameEngine.offerTrade(g,"a",{toId:"b",giveMoney:10});
+ assert.throws(()=>gameEngine.offerTrade(g,"c",{toId:"b",giveMoney:10}),/đề nghị giao dịch/);
+ gameEngine.cancelTrade(g,"a");
+ assert.equal(g.trade,null);
+});
