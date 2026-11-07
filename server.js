@@ -117,17 +117,29 @@ function shuffle(a) {
   }
   return x;
 }
-function rolesFor(count) {
-  const wolfCount = count >= 14 ? 4 : count >= 10 ? 3 : count >= 7 ? 2 : 1;
+const CONFIGURABLE_ROLES = ["seer", "witch", "protector", "cupid", "hunter", "elder", "littleGirl", "mayor", "medium"];
+function rolesFor(count, settings = {}) {
+  const automaticWolfCount = count >= 14 ? 4 : count >= 10 ? 3 : count >= 7 ? 2 : 1;
+  const requestedWolfCount = Number(settings.wolfCount) || 0;
+  const wolfCount = Math.min(Math.max(1, requestedWolfCount || automaticWolfCount), Math.max(1, count - 2));
   const roles = Array(wolfCount).fill("wolf");
-  roles.push("seer", "witch");
-  if (count >= 6) roles.push("protector");
-  if (count >= 7) roles.push("cupid");
-  if (count >= 8) roles.push("hunter");
-  if (count >= 9) roles.push("elder");
-  if (count >= 10) roles.push("littleGirl");
-  if (count >= 11) roles.push("mayor");
-  if (count >= 12) roles.push("medium");
+
+  if (settings.customRoles) {
+    const enabled = new Set(Array.isArray(settings.enabledRoles) ? settings.enabledRoles : CONFIGURABLE_ROLES);
+    for (const role of CONFIGURABLE_ROLES) {
+      if (enabled.has(role) && roles.length < count - 1) roles.push(role);
+    }
+  } else {
+    roles.push("seer", "witch");
+    if (count >= 6) roles.push("protector");
+    if (count >= 7) roles.push("cupid");
+    if (count >= 8) roles.push("hunter");
+    if (count >= 9) roles.push("elder");
+    if (count >= 10) roles.push("littleGirl");
+    if (count >= 11) roles.push("mayor");
+    if (count >= 12) roles.push("medium");
+  }
+
   while (roles.length < count) roles.push("villager");
   return shuffle(roles);
 }
@@ -256,7 +268,7 @@ function publicState(room, player) {
       loverName: room.loverPair && room.loverPair.includes(me.id) ? ((getPlayer(room, room.loverPair.find(id => id !== me.id)) || {}).name || "") : "",
       mayorVoteWeight: me.role === "mayor" && me.alive ? 2 : 1
     } : null,
-    canStart: !!player && player.id === room.hostId && room.status === "lobby" && room.players.length >= 5 && room.players.length <= 16 && room.players.every(p => p.ready),
+    canStart: !!player && player.id === room.hostId && room.status === "lobby" && room.players.length >= 5 && room.players.length <= room.settings.maxPlayers && room.players.every(p => p.ready),
     voteReadyCount: room.voteReady.size,
     isRevealed: ended
   };
@@ -276,7 +288,10 @@ function setTimer(room, seconds, callback) {
 function createRoomObject(code, player) {
   return {
     code, players: [player], hostId: player.id, hostTransferTimer: null, kickedTokens: new Set(), kickedNames: new Set(), status: "lobby", phase: "lobby", subphase: "",
-    settings: { discussionSeconds: 180, voteSeconds: 45, nightSeconds: 35 },
+    settings: {
+      discussionSeconds: 180, voteSeconds: 45, nightSeconds: 35,
+      maxPlayers: 16, wolfCount: 0, customRoles: false, enabledRoles: CONFIGURABLE_ROLES.slice()
+    },
     day: 0, timer: null, endsAt: null, announcement: "Đang chờ mọi người tham gia.",
     winner: null, night: null, votes: {}, voteReady: new Set(), chat: [],
     privateNotes: {}, witchSaveAvailable: true, witchPoisonAvailable: true,
@@ -296,8 +311,8 @@ function joinPlayer(socket, room, player, token) {
 }
 function startGame(room, starterId) {
   if (starterId !== room.hostId) return false;
-  if (room.status !== "lobby" || room.players.length < 5 || room.players.length > 16 || !room.players.every(p => p.ready)) return false;
-  const roles = rolesFor(room.players.length);
+  if (room.status !== "lobby" || room.players.length < 5 || room.players.length > room.settings.maxPlayers || !room.players.every(p => p.ready)) return false;
+  const roles = rolesFor(room.players.length, room.settings);
   room.players.forEach((p, i) => { p.role = roles[i]; p.alive = true; p.ready = false; });
   room.status = "playing"; room.day = 0; room.winner = null;
   room.witchSaveAvailable = true; room.witchPoisonAvailable = true; room.lastProtected = null;
@@ -532,7 +547,7 @@ io.on("connection", (socket) => {
     }
     if (!name) return sendError(socket, "Nhập tên của bạn trước nhé.");
     if (room.status !== "lobby") return sendError(socket, "Ván chơi đã bắt đầu. Chỉ người chơi cũ có mã phiên mới vào lại được.");
-    if (room.players.length >= 16) return sendError(socket, "Phòng đã đủ 16 người.");
+    if (room.players.length >= room.settings.maxPlayers) return sendError(socket, "Phòng đã đạt giới hạn số người do chủ phòng cài đặt.");
     if (room.players.some(p => p.name.toLowerCase() === name.toLowerCase())) return sendError(socket, "Tên này đã có trong phòng, hãy chọn tên khác.");
     const newToken = randomId(18);
     player = { id: randomId(8), name, token: newToken, socketId: null, connected: true, ready: false, alive: true, role: null };
@@ -549,6 +564,44 @@ io.on("connection", (socket) => {
     const p = room.players.find(x => x.socketId === socket.id);
     if (!p || p.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng mới có quyền bắt đầu ván chơi.");
     if (!startGame(room, p.id)) return sendError(socket, "Cần ít nhất 5 người và tất cả người chơi phải sẵn sàng.");
+    broadcast(room);
+  });
+
+  socket.on("hostSettings", (data) => {
+    const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
+    if (!room || room.status !== "lobby") return sendError(socket, "Chỉ có thể thay đổi cài đặt khi phòng đang ở sảnh chờ.");
+    const host = room.players.find(p => p.socketId === socket.id);
+    if (!host || host.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng mới được thay đổi cài đặt.");
+
+    const next = data || {};
+    const maxPlayers = Number(next.maxPlayers);
+    const discussionSeconds = Number(next.discussionSeconds);
+    const voteSeconds = Number(next.voteSeconds);
+    const nightSeconds = Number(next.nightSeconds);
+    const wolfCount = Number(next.wolfCount);
+    const customRoles = next.customRoles === true;
+    const enabledRoles = Array.isArray(next.enabledRoles)
+      ? [...new Set(next.enabledRoles.filter(role => CONFIGURABLE_ROLES.includes(role)))]
+      : room.settings.enabledRoles.slice();
+
+    if (!Number.isInteger(maxPlayers) || maxPlayers < 5 || maxPlayers > 16 || maxPlayers < room.players.length) {
+      return sendError(socket, "Số người tối đa phải từ 5 đến 16 và không được thấp hơn số người đang có trong phòng.");
+    }
+    if (!Number.isInteger(discussionSeconds) || discussionSeconds < 30 || discussionSeconds > 300) {
+      return sendError(socket, "Thời gian thảo luận phải từ 30 đến 300 giây.");
+    }
+    if (!Number.isInteger(voteSeconds) || voteSeconds < 15 || voteSeconds > 120) {
+      return sendError(socket, "Thời gian bỏ phiếu phải từ 15 đến 120 giây.");
+    }
+    if (!Number.isInteger(nightSeconds) || nightSeconds < 10 || nightSeconds > 90) {
+      return sendError(socket, "Thời gian mỗi lượt ban đêm phải từ 10 đến 90 giây.");
+    }
+    if (!Number.isInteger(wolfCount) || wolfCount < 0 || wolfCount > 4) {
+      return sendError(socket, "Số Ma sói phải chọn từ Tự động đến 4.");
+    }
+
+    room.settings = { discussionSeconds, voteSeconds, nightSeconds, maxPlayers, wolfCount, customRoles, enabledRoles };
+    room.announcement = "Chủ phòng đã cập nhật cài đặt ván chơi.";
     broadcast(room);
   });
   socket.on("replayGame", () => {
