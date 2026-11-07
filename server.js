@@ -188,6 +188,8 @@ function publicState(room, player) {
   const me = player;
   const others = room.players.map(p => ({
     id: p.id, name: p.name, alive: p.alive, ready: p.ready, connected: p.connected,
+    isHost: p.id === room.hostId,
+    canManage: !!player && player.id === room.hostId && room.status === "lobby" && p.id !== room.hostId,
     role: ended ? (ROLE_GUIDES[p.role] || {}).name : undefined
   }));
   let actionType = null, prompt = "", targets = [], privateInfo = "", actionDone = false;
@@ -245,6 +247,7 @@ function publicState(room, player) {
     winner: room.winner, chat: room.chat.slice(-35),
     self: me ? {
       id: me.id, name: me.name, alive: me.alive, ready: me.ready, role: me.role,
+      isHost: me.id === room.hostId,
       roleName: guide ? guide.name : "", roleDescription: guide ? guide.summary : "",
       guide, actionType, prompt, targets, actionDone, privateInfo, privateNote: notes,
       witchSaveAvailable: me.role === "witch" && room.witchSaveAvailable,
@@ -253,7 +256,7 @@ function publicState(room, player) {
       loverName: room.loverPair && room.loverPair.includes(me.id) ? ((getPlayer(room, room.loverPair.find(id => id !== me.id)) || {}).name || "") : "",
       mayorVoteWeight: me.role === "mayor" && me.alive ? 2 : 1
     } : null,
-    canStart: room.status === "lobby" && room.players.length >= 5 && room.players.length <= 16 && room.players.every(p => p.ready),
+    canStart: !!player && player.id === room.hostId && room.status === "lobby" && room.players.length >= 5 && room.players.length <= 16 && room.players.every(p => p.ready),
     voteReadyCount: room.voteReady.size,
     isRevealed: ended
   };
@@ -272,7 +275,7 @@ function setTimer(room, seconds, callback) {
 }
 function createRoomObject(code, player) {
   return {
-    code, players: [player], status: "lobby", phase: "lobby", subphase: "",
+    code, players: [player], hostId: player.id, hostTransferTimer: null, status: "lobby", phase: "lobby", subphase: "",
     settings: { discussionSeconds: 180, voteSeconds: 45, nightSeconds: 35 },
     day: 0, timer: null, endsAt: null, announcement: "Đang chờ mọi người tham gia.",
     winner: null, night: null, votes: {}, voteReady: new Set(), chat: [],
@@ -283,10 +286,16 @@ function createRoomObject(code, player) {
   };
 }
 function joinPlayer(socket, room, player, token) {
-  player.socketId = socket.id; player.connected = true; socket.join(room.code);
+  player.socketId = socket.id; player.connected = true;
+  if (!room.hostId) room.hostId = player.id;
+  if (room.hostTransferTimer && player.id === room.hostId) {
+    clearTimeout(room.hostTransferTimer); room.hostTransferTimer = null;
+  }
+  socket.join(room.code);
   socket.emit("joined", { code: room.code, token, playerId: player.id }); broadcast(room);
 }
-function startGame(room) {
+function startGame(room, starterId) {
+  if (starterId !== room.hostId) return false;
   if (room.status !== "lobby" || room.players.length < 5 || room.players.length > 16 || !room.players.every(p => p.ready)) return false;
   const roles = rolesFor(room.players.length);
   room.players.forEach((p, i) => { p.role = roles[i]; p.alive = true; p.ready = false; });
@@ -535,7 +544,38 @@ io.on("connection", (socket) => {
   socket.on("startGame", () => {
     const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
     if (!room) return;
-    if (!startGame(room)) return sendError(socket, "Cần ít nhất 5 người và tất cả người chơi phải sẵn sàng.");
+    const p = room.players.find(x => x.socketId === socket.id);
+    if (!p || p.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng mới có quyền bắt đầu ván chơi.");
+    if (!startGame(room, p.id)) return sendError(socket, "Cần ít nhất 5 người và tất cả người chơi phải sẵn sàng.");
+    broadcast(room);
+  });
+  socket.on("kickPlayer", (data) => {
+    const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
+    if (!room || room.status !== "lobby") return sendError(socket, "Chỉ có thể kick người chơi khi phòng đang ở sảnh chờ.");
+    const host = room.players.find(p => p.socketId === socket.id);
+    if (!host || host.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng mới có quyền kick người chơi.");
+    const target = getPlayer(room, data && data.targetId);
+    if (!target || target.id === host.id) return sendError(socket, "Không thể kick người chơi này.");
+    if (target.socketId) {
+      const targetSocket = io.sockets.sockets.get(target.socketId);
+      if (targetSocket) {
+        targetSocket.emit("kicked", { message: "Bạn đã bị chủ phòng mời ra khỏi phòng." });
+        targetSocket.leave(room.code);
+      }
+    }
+    room.players = room.players.filter(p => p.id !== target.id);
+    room.announcement = target.name + " đã bị chủ phòng mời ra khỏi phòng.";
+    broadcast(room);
+  });
+  socket.on("transferHost", (data) => {
+    const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
+    if (!room || room.status !== "lobby") return sendError(socket, "Chỉ có thể chuyển chủ phòng khi đang ở sảnh chờ.");
+    const host = room.players.find(p => p.socketId === socket.id);
+    if (!host || host.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng hiện tại mới có quyền chuyển quyền.");
+    const target = getPlayer(room, data && data.targetId);
+    if (!target || target.id === host.id || !target.connected || !target.socketId) return sendError(socket, "Người được chọn không còn kết nối trong phòng.");
+    room.hostId = target.id;
+    room.announcement = target.name + " đã trở thành chủ phòng mới.";
     broadcast(room);
   });
   socket.on("nightAction", (data) => {
@@ -581,6 +621,12 @@ io.on("connection", (socket) => {
     if (!room) return;
     const p = room.players.find(x => x.socketId === socket.id);
     if (p) { p.connected = false; p.socketId = null; }
+    if (p && p.id === room.hostId) {
+      if (room.hostTransferTimer) clearTimeout(room.hostTransferTimer);
+      const next = room.players.find(x => x.id !== p.id && x.connected && x.socketId);
+      room.hostId = next ? next.id : null;
+      room.announcement = next ? (next.name + " đã tiếp quản quyền chủ phòng.") : "Chủ phòng đã rời phòng. Người tham gia tiếp theo sẽ trở thành chủ phòng.";
+    }
     socket.leave(room.code); broadcast(room);
   });
   socket.on("disconnect", () => {
@@ -588,6 +634,19 @@ io.on("connection", (socket) => {
     if (!room) return;
     const p = room.players.find(x => x.socketId === socket.id);
     if (p) { p.connected = false; p.socketId = null; }
+    if (p && p.id === room.hostId && room.status === "lobby") {
+      if (room.hostTransferTimer) clearTimeout(room.hostTransferTimer);
+      room.hostTransferTimer = setTimeout(() => {
+        room.hostTransferTimer = null;
+        const currentHost = getPlayer(room, room.hostId);
+        if (currentHost && !currentHost.connected) {
+          const next = room.players.find(x => x.id !== currentHost.id && x.connected && x.socketId);
+          room.hostId = next ? next.id : null;
+          room.announcement = next ? (next.name + " đã tiếp quản quyền chủ phòng vì chủ cũ mất kết nối.") : "Chủ phòng mất kết nối. Người tham gia tiếp theo sẽ trở thành chủ phòng.";
+          broadcast(room);
+        }
+      }, 15000);
+    }
     broadcast(room);
   });
 });
