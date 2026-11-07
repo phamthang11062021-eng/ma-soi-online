@@ -26,3 +26,48 @@ button:disabled{opacity:.4;cursor:not-allowed;transform:none}
   .player-action{flex:1;padding:7px}
   .host-badge{font-size:8px}
 }
+
+
+/* Square character roster */
+.players{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.player-tile{position:relative;aspect-ratio:1/1;min-width:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px;padding:10px 7px 9px;border:1px solid #756044;border-radius:13px;background:radial-gradient(circle at 50% 25%,#4a4b4a 0,#222b35 48%,#121922 100%);text-align:center;box-shadow:inset 0 0 24px #d9b77912,0 5px 14px #0003}
+.player-tile:before{content:"";position:absolute;inset:5px;border:1px solid #b89b6940;border-radius:9px;pointer-events:none}
+.tile-art{position:relative;display:grid;place-items:center;width:65%;aspect-ratio:1/1;border-radius:50%;background:radial-gradient(circle,#d9b77930,#111820 68%);border:1px solid #b99b665c;box-shadow:0 0 22px #d9b77922}
+.tile-person{font-size:clamp(30px,4vw,48px);line-height:1;color:#e7d6b1;text-shadow:0 3px 10px #000}
+.tile-spark{position:absolute;top:5px;left:9px;color:#d9b779;font-size:12px}
+.tile-number{position:absolute;right:5px;bottom:3px;font-size:9px;color:#d9b779;background:#111820;border:1px solid #776448;border-radius:20px;padding:2px 5px}
+.tile-name{max-width:100%;font-size:clamp(10px,1.1vw,13px);font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f3ead8}
+.tile-status{font-size:8px;letter-spacing:.5px;color:#a9c5a5;font-weight:800;line-height:1.3}
+.player-tile .host-badge{font-size:7px;padding:3px 6px}
+.player-tile.dead{opacity:1;text-decoration:none;border-color:#6e3038;background:radial-gradient(circle at 50% 25%,#59252d 0,#24191f 55%,#101217 100%);filter:saturate(.75)}
+.player-tile.dead:before{border-color:#b65a6466}
+.player-tile.dead .tile-art{background:radial-gradient(circle,#6d202b,#1a1015 70%);border-color:#a44b55;filter:grayscale(.8)}
+.player-tile.dead .tile-person{color:#9c7779;opacity:.6}
+.player-tile.dead .tile-name{color:#b8a0a1;text-decoration:line-through}
+.player-tile.dead .tile-status{color:#ff858b}
+.player-tile .player-actions{position:absolute;inset:auto 6px 6px;display:flex;gap:4px;z-index:2}
+.player-tile .player-action{font-size:8px;padding:4px 5px;background:#303b49eF}
+.player-tile .player-action.kick{background:#542b32}
+.player-tile .revealed-role{font-size:9px;color:#e8c887}
+.role-card{max-width:390px;margin:0 auto 16px;padding:17px 20px 20px;background:linear-gradient(155deg,#302b27,#1b2632 65%,#141b25);border:1px solid #9b8055;box-shadow:inset 0 0 0 4px #d9b77912,0 16px 38px #0005}
+.role-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.role-team{font-size:8px;letter-spacing:1px;color:#e5c58a;border:1px solid #9b8055;border-radius:20px;padding:5px 8px}
+.role-art{margin:14px auto 8px;max-width:260px;padding:9px;border:1px solid #8a724f;border-radius:12px;background:linear-gradient(135deg,#161e27,#34332f)}
+.role-art-frame{position:relative;display:grid;place-items:center;aspect-ratio:5/3;overflow:hidden;border:1px solid #c4a66c66;border-radius:8px;background:radial-gradient(ellipse at center,#746044 0,#34302a 40%,#151c25 100%)}
+.role-art-frame:before,.role-art-frame:after{content:"✦";position:absolute;color:#e0c18b66;font-size:25px}
+.role-art-frame:before{top:9px;left:14px}.role-art-frame:after{right:14px;bottom:9px}
+.role-art-icon{position:relative;z-index:1;font-size:clamp(62px,9vw,88px);line-height:1.1;filter:drop-shadow(0 8px 12px #0008)}
+.role-art-glow{position:absolute;width:65%;height:65%;border-radius:50%;background:#e2c38b18;filter:blur(20px)}
+.role-art-caption{font-size:7px;letter-spacing:2px;color:#bda77f;text-align:center;margin-top:7px}
+.role-card h2{font-family:Georgia,serif;font-size:27px;letter-spacing:1px;margin:8px 0;color:#f0d29a}
+.role-card p{font-size:12px;line-height:1.7}
+@media(max-width:700px){
+  .players{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .player-tile{padding:9px 6px}
+  .tile-art{width:58%}
+  .tile-name{font-size:12px}
+  .tile-status{font-size:8px}
+  .player-tile .player-actions{inset:auto 5px 5px}
+  .player-tile .player-action{font-size:8px;padding:5px 4px}
+  .role-card{max-width:100%}
+}
