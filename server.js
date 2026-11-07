@@ -275,7 +275,7 @@ function setTimer(room, seconds, callback) {
 }
 function createRoomObject(code, player) {
   return {
-    code, players: [player], hostId: player.id, hostTransferTimer: null, status: "lobby", phase: "lobby", subphase: "",
+    code, players: [player], hostId: player.id, hostTransferTimer: null, kickedTokens: new Set(), kickedNames: new Set(), status: "lobby", phase: "lobby", subphase: "",
     settings: { discussionSeconds: 180, voteSeconds: 45, nightSeconds: 35 },
     day: 0, timer: null, endsAt: null, announcement: "Đang chờ mọi người tham gia.",
     winner: null, night: null, votes: {}, voteReady: new Set(), chat: [],
@@ -523,6 +523,8 @@ io.on("connection", (socket) => {
     const token = String(payload && payload.token || "");
     const room = rooms.get(code);
     if (!room) return sendError(socket, "Không tìm thấy phòng. Kiểm tra lại mã phòng nhé.");
+    if (token && room.kickedTokens && room.kickedTokens.has(token)) return sendError(socket, "Bạn đã bị chủ phòng mời ra và không thể dùng lại phiên cũ để vào phòng.");
+    if (name && room.kickedNames && room.kickedNames.has(name.toLowerCase())) return sendError(socket, "Tên này đã bị chủ phòng chặn khỏi phòng.");
     let player = token ? room.players.find(p => p.token === token) : null;
     if (player) {
       if (player.name.toLowerCase() !== name.toLowerCase() && name) return sendError(socket, "Tên không khớp với phiên chơi đã lưu.");
@@ -556,6 +558,8 @@ io.on("connection", (socket) => {
     if (!host || host.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng mới có quyền kick người chơi.");
     const target = getPlayer(room, data && data.targetId);
     if (!target || target.id === host.id) return sendError(socket, "Không thể kick người chơi này.");
+    room.kickedTokens.add(target.token);
+    room.kickedNames.add(target.name.toLowerCase());
     if (target.socketId) {
       const targetSocket = io.sockets.sockets.get(target.socketId);
       if (targetSocket) {
