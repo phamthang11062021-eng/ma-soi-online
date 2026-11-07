@@ -149,7 +149,7 @@ test("trade proposals cannot duplicate properties or overwrite another pending t
 
 test("paying a third failed jail roll by mortgaging resumes movement",()=>{
  const g=gameEngine.createGame(players());
- const p=g.players[0];p.inJail=true;p.jailTurns=2;p.money=0;p.properties=[1,3];
+ const p=g.players[0];p.position=10;p.inJail=true;p.jailTurns=2;p.money=0;p.properties=[1,3];
  g.properties[1]={ownerId:"a",houses:0,mortgaged:false};
  g.properties[3]={ownerId:"a",houses:0,mortgaged:false};
  gameEngine.roll(g,"a",[2,3]);
