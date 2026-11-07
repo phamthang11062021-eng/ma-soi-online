@@ -32,6 +32,9 @@ test("declining purchase opens auction and highest bidder wins",()=>{
  const id=g.pending.spaceId;
  gameEngine.declinePurchase(g,"a");
  gameEngine.bid(g,"a",100);
+ assert.ok(g.auction);
+ gameEngine.passBid(g,"b");
+ gameEngine.passBid(g,"c");
  assert.equal(g.properties[id].ownerId,"a");
 });
 test("mortgage and unmortgage adjust cash and ownership state",()=>{
