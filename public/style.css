@@ -12,3 +12,17 @@
 .selection-count{text-align:center;color:#e8c98f;font-size:12px;margin:0 0 10px}
 button:disabled{opacity:.4;cursor:not-allowed;transform:none}
 @media(max-width:700px){.guide-panel{padding:13px}.guide-section p,.guide-section li{font-size:11px}.revealed-role{max-width:76px;overflow:hidden;text-overflow:ellipsis}}
+
+.host-badge{display:inline-flex;align-items:center;gap:3px;background:#4a3b25;color:#f0d29a;border:1px solid #8b7045;border-radius:20px;padding:4px 7px;font-size:9px;font-weight:800;white-space:nowrap}
+.player-name{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.player-actions{display:flex;gap:5px;margin-left:6px}
+.player-action{border:1px solid #586578;background:#303c4b;color:#dce3e9;border-radius:6px;padding:5px 7px;font-size:9px;white-space:nowrap}
+.player-action.kick{border-color:#8a5050;background:#492e32;color:#ffd1d1}
+#hostHint{margin:10px 0 0}
+@media(max-width:700px){
+  .player{flex-wrap:wrap;gap:7px}
+  .player .status{margin-left:auto}
+  .player-actions{width:100%;margin-left:39px}
+  .player-action{flex:1;padding:7px}
+  .host-badge{font-size:8px}
+}
