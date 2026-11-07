@@ -78,3 +78,16 @@ Người chơi có thể ẩn/mở phần hướng dẫn trong suốt ván. Role
 - Giao diện thư viện tối ưu cho desktop và điện thoại.
 
 Lưu ý: thư viện nhân vật không thay đổi thuật toán chia role hiện tại. Các role mới chỉ được kích hoạt sau khi luật, thứ tự thức dậy, điều kiện thắng và tương tác với role cũ được thống nhất và kiểm thử.
+
+
+## Cài đặt chủ phòng (Version 2.0 – nhánh phát triển)
+
+Trong sảnh chờ, chủ phòng có thể cấu hình:
+- Giới hạn phòng từ 5 đến 16 người.
+- Thời gian thảo luận: 30–300 giây.
+- Thời gian bỏ phiếu: 15–120 giây.
+- Thời gian cho mỗi lượt đêm: 10–90 giây.
+- Số Ma sói: tự động hoặc 1–4 (số lượng phải phù hợp với số người thực tế).
+- Chế độ chia role tự động hoặc tùy chỉnh danh sách role đặc biệt.
+
+Máy chủ kiểm tra quyền Host và kiểm tra giá trị cài đặt trước khi lưu. Cài đặt chỉ thay đổi trong sảnh chờ; thay đổi không được chấp nhận sau khi ván bắt đầu.
