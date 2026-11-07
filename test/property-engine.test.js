@@ -119,7 +119,7 @@ test("timed game ends and chooses the player with greatest asset value",()=>{
  const g=gameEngine.createGame(players());
  g.players[0].money=100;g.players[0].properties=[1];
  g.properties[1]={ownerId:"a",houses:0,mortgaged:false};
- g.players[1].money=110;
+ g.players[1].money=110;g.players[2].money=50;
  const result=gameEngine.endByTime(g);
  assert.equal(result.winnerId,"a");
  assert.equal(g.status,"ended");
