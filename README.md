@@ -43,6 +43,15 @@ Có 11 role, mỗi người chỉ nhận hướng dẫn riêng cho role mình đ
 - Thầy đồng: một lần mỗi ván xem chính xác role của một người đã chết.
 - Dân làng: thảo luận và bỏ phiếu.
 
+## Quản lý phòng
+
+- Người tạo phòng mặc định là chủ phòng.
+- Chỉ chủ phòng mới có quyền bắt đầu ván chơi; máy chủ xác thực quyền này, không chỉ ẩn nút ở giao diện.
+- Trong sảnh chờ, chủ phòng có thể kick người chơi hoặc chuyển quyền chủ phòng cho người đang kết nối.
+- Người bị kick không thể dùng lại phiên cũ hoặc cùng tên để vào lại phòng.
+- Nếu chủ phòng rời phòng, quyền được chuyển cho người đang kết nối; nếu mất kết nối đột ngột, hệ thống chờ 15 giây trước khi chuyển quyền.
+- Kick và chuyển quyền hiện chỉ khả dụng trong sảnh chờ, không áp dụng giữa ván để tránh làm hỏng lượt kỹ năng và kết quả.
+
 ## Hướng dẫn role
 
 Khi ván bắt đầu, thẻ role riêng của người chơi hiển thị:
