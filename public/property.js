@@ -7,7 +7,7 @@ function toast(s){$("mpToast").textContent=s;$("mpToast").classList.add("show");
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function enter(code,tok){roomCode=code;token=tok||token;sessionStorage.setItem("gc-property-session",JSON.stringify({code,token,name:$("mpName").value.trim()||saved.name||""}));$("mpHome").classList.add("hidden");$("mpRoom").classList.remove("hidden");$("mpRoomCode").textContent=code}
 $("mpCreate").onclick=()=>{const name=$("mpName").value.trim();if(!name)return toast("Nhập tên của bạn trước nhé.");socket.emit("gc:createRoom",{gameType:"property",name})};
-$("mpJoin").onclick=()=>{const name=$("mpName").value.trim(),code=$("mpCode").value.trim().toUpperCase();if(!name||!code)return toast("Nhập tên và mã phòng nhé.");socket.emit("gc:joinRoom",{name,code})};
+$("mpJoin").onclick=()=>{const name=$("mpName").value.trim(),code=$("mpCode").value.trim().toUpperCase();if(!name||!code)return toast("Nhập tên và mã phòng nhé.");socket.emit("gc:joinRoom",{name,code,gameType:"property"})};
 $("mpCopy").onclick=async()=>{try{await navigator.clipboard.writeText(roomCode);toast("Đã sao chép mã "+roomCode)}catch{toast("Mã phòng: "+roomCode)}};
 $("mpReady").onclick=()=>socket.emit("gc:ready");
 $("mpStart").onclick=()=>socket.emit("gc:host:start");
@@ -15,7 +15,7 @@ $("mpSaveSettings").onclick=()=>socket.emit("gc:host:settings",{mode:$("mpMode")
 $("mpReplay").onclick=()=>socket.emit("gc:restart");
 $("mpLeave").onclick=()=>{socket.emit("gc:leaveRoom");sessionStorage.removeItem("gc-property-session");location.href="/"};
 $("mpChatForm").onsubmit=e=>{e.preventDefault();const message=$("mpChatInput").value.trim();if(message){socket.emit("gc:chat",{message});$("mpChatInput").value=""}};
-socket.on("connect",()=>{if(saved.code&&saved.token){$("mpName").value=saved.name||"";socket.emit("gc:joinRoom",{code:saved.code,token:saved.token,name:saved.name||""})}});
+socket.on("connect",()=>{if(saved.code&&saved.token){$("mpName").value=saved.name||"";socket.emit("gc:joinRoom",{code:saved.code,token:saved.token,name:saved.name||"",gameType:"property"})}});
 socket.on("gc:joined",d=>enter(d.code,d.token));
 socket.on("gc:error",toast);
 socket.on("gc:kicked",d=>{sessionStorage.removeItem("gc-property-session");$("mpRoom").classList.add("hidden");$("mpHome").classList.remove("hidden");toast(d.message||"Bạn đã bị mời khỏi phòng.")});
