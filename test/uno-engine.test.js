@@ -53,7 +53,7 @@ test("wild card requires a valid color choice", () => {
 
 test("draw two penalizes the next player and skips that turn", () => {
   const game=fixedGame();
-  game.players[0].hand=[{id:"d2",color:"red",type:"draw2",label:"+2"}];
+  game.players[0].hand=[{id:"d2",color:"red",type:"draw2",label:"+2"},{id:"extra",color:"blue",type:"number",value:5,label:"5"}];
   const before=game.players[1].hand.length;
   uno.playCard(game,"a","d2");
   assert.equal(game.players[1].hand.length,before+2);
