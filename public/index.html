@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10151d"><title>Ma Sói Online — Không cần quản trò</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="ambient"></div><main class="shell">
+<header><div class="brand-mark">☾</div><div><div class="brand">MA SÓI <span>ONLINE</span></div><div class="tagline">Một ngôi làng · Không cần quản trò</div></div><button id="soundBtn" class="icon-btn" title="Bật/tắt âm thanh">♫</button></header>
+<section id="home" class="panel hero">
+<div class="eyebrow">ĐÊM ĐANG GỌI TÊN BẠN</div><h1>Ai đang ẩn mình<br><em>trong bóng tối?</em></h1><p>Tạo phòng, mời bạn bè và để ngôi làng tự vận hành. Mỗi người chơi chỉ biết bí mật của chính mình.</p>
+<div class="form-grid"><label>Tên hiển thị<input id="homeName" maxlength="18" placeholder="Ví dụ: Sói xám"></label><button id="createBtn" class="primary">Tạo phòng mới <span>↗</span></button></div>
+<div class="join-row"><input id="roomCode" maxlength="6" placeholder="NHẬP MÃ PHÒNG"><button id="joinBtn" class="secondary">Tham gia phòng</button></div>
+<div class="feature-row"><span>♟ 5–16 người</span><span>◉ Chia vai bí mật</span><span>⌁ Tự động điều hành</span></div>
+</section>
+<section id="game" class="hidden">
+<div class="room-top"><div><div class="eyebrow" id="phaseLabel">SẢNH CHỜ</div><h2 id="roomTitle">Phòng <span id="roomCodeLabel"></span></h2></div><button id="copyBtn" class="secondary small">Sao chép mã</button></div>
+<div id="notice" class="notice">Đang chờ người chơi...</div>
+<div id="roleCard" class="role-card hidden"><div class="role-symbol">✦</div><div class="eyebrow">VAI TRÒ CỦA BẠN</div><h2 id="roleName">Dân làng</h2><p id="roleDesc"></p><div id="privateInfo" class="private-info"></div></div>
+<div class="game-layout"><div class="panel players-panel"><div class="panel-heading"><h3>Dân làng</h3><span id="countLabel">0/16</span></div><div id="players" class="players"></div><div id="lobbyControls"><button id="readyBtn" class="primary wide">Tôi đã sẵn sàng</button><button id="startBtn" class="secondary wide">Bắt đầu ván chơi</button><p class="hint">Cần ít nhất 5 người và tất cả cùng sẵn sàng.</p></div></div>
+<div class="panel action-panel"><div class="panel-heading"><h3 id="actionTitle">Diễn biến</h3><span id="timer" class="timer">—</span></div><div id="actionArea" class="action-area"><div class="empty-state">Chờ mọi người vào phòng.<br><small>Gửi mã phòng để bạn bè tham gia.</small></div></div><div id="chatArea" class="chat-area hidden"><div id="chatMessages" class="chat-messages"></div><form id="chatForm"><input id="chatInput" maxlength="240" placeholder="Nói điều bạn nghi ngờ..."><button class="primary" type="submit">Gửi</button></form></div></div></div>
+<div class="bottom-row"><span id="selfStatus"></span><button id="leaveBtn" class="text-btn">Rời phòng</button></div>
+</section>
+<footer>MA SÓI ONLINE <span>·</span> Chơi vui, đừng tin ai quá sớm.</footer>
+</main>
+<div id="toast" class="toast"></div>
+<script src="/socket.io/socket.io.js"></script><script src="/app.js"></script>
+</body></html>
