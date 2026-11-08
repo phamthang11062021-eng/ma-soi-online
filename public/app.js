@@ -9,7 +9,14 @@ cupid:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 99 20 61C-1 37
 elder:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 16q-24 0-27 25-20 4-16 25 1 17 20 20h46q19-3 20-20 4-21-16-25-3-25-27-25Z" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M60 86v24m-13-8 13-9 13 9M44 54h2m28 0h2m-30 17q14 10 28 0" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>',
 littleGirl:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 9q22 23 3 39 17-6 18-19 19 29-3 47-19 16-39 0-20-19 1-43-1 17 12 18Q49 32 60 9Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M39 88h42v18H39zM34 106h52M48 88V78h24v10" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/></svg>',
 mayor:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="m17 40 24 18 19-36 19 36 24-18-9 55H26Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M26 78h68M31 104h58M39 94h42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="17" cy="34" r="6" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="17" r="6" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="103" cy="34" r="6" fill="none" stroke="currentColor" stroke-width="3"/></svg>',
-medium:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M35 56q0-29 25-29t25 29q0 18 13 27H22q13-9 13-27Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M48 93q3 15 12 15t12-15M60 27V12m-9 0h18M25 46l-9-7m79 7 9-7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="60" cy="57" r="5" fill="currentColor"/></svg>'
+medium:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M35 56q0-29 25-29t25 29q0 18 13 27H22q13-9 13-27Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M48 93q3 15 12 15t12-15M60 27V12m-9 0h18M25 46l-9-7m79 7 9-7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="60" cy="57" r="5" fill="currentColor"/></svg>',
+thief:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M18 42q42-36 84 0M25 43h70l-9 12H34Z M60 55v43m-20 0h40" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 84q18-12 36 0" fill="none" stroke="currentColor" stroke-width="3"/></svg>',
+"white-wolf":'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M24 43 17 14l30 18q13-8 26 0l30-18-7 31q9 16 3 34-9 28-39 34-30-6-39-34-5-18 3-36Z" fill="none" stroke="currentColor" stroke-width="4"/><path d="m43 58 10 4m24-4-10 4M48 81q12-9 24 0M60 4v17" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>',
+"wolf-cub":'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M27 45 20 20l27 13q13-8 26 0l27-13-7 27q8 13 3 29-8 24-36 29-28-5-36-29-5-16 3-31Z" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="47" cy="61" r="4" fill="currentColor"/><circle cx="73" cy="61" r="4" fill="currentColor"/><path d="M50 81q10 8 20 0" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>',
+scapegoat:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 12 72 40l30 4-22 21 6 31-26-15-26 15 6-31L18 44l30-4Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M60 44v25m0 13v2" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg>',
+"pied-piper":'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M22 78q18-40 38 0t38 0M20 94h80M60 14v35m-10-25 10-10 10 10" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="60" cy="61" r="8" fill="none" stroke="currentColor" stroke-width="4"/></svg>',
+knight:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M28 101V44l32-28 32 28v57M28 53h64M44 101V70q16-17 32 0v31" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M60 4v22m-11-11h22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>',
+angel:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 36q-12-18-32-11 8 27 32 33 24-6 32-33-20-7-32 11Z M60 40v61M43 101h34M45 20q15-17 30 0" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="60" cy="33" r="10" fill="none" stroke="currentColor" stroke-width="3"/></svg>'
 };
 const GENERIC_AVATAR='<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="27" r="14" fill="currentColor"/><path d="M13 72q2-25 27-25t27 25" fill="currentColor"/></svg>';
 
@@ -18,7 +25,7 @@ const GENERIC_AVATAR='<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40
 const socket = io();
 const $ = (id) => document.getElementById(id);
 let state = null, selected = null, myToken = "", myCode = "", toastTimer = null;
-let currentGuideRole = null, guideOpen = true, cupidSelected = [], renderedSettingsKey = "";
+let currentGuideRole = null, guideOpen = true, cupidSelected = [], piperSelected = [], renderedSettingsKey = "";
 let lastPoses = new Map(), previousPhase = null;
 const showToast = (msg) => {
   $("toast").textContent = msg;
@@ -191,7 +198,11 @@ function renderRoleCard(me) {
     void $("roleCard").offsetWidth;
     $("roleCard").classList.add("role-card-reveal");
   }
-  const roleTeams = { wolf: "PHE MA SÓI", cupid: "ĐỘC LẬP / ĐÔI TÌNH NHÂN" };
+  const roleTeams = {
+    wolf: "PHE MA SÓI", "white-wolf": "PHE SÓI · MỤC TIÊU RIÊNG", "wolf-cub": "PHE MA SÓI",
+    cupid: "ĐÔI TÌNH NHÂN", thief: "ROLE ĐẶC BIỆT", "pied-piper": "PHE ĐỘC LẬP",
+    scapegoat: "PHE DÂN LÀNG", knight: "PHE DÂN LÀNG", angel: "PHE ĐỘC LẬP"
+  };
   $("roleCard").dataset.role = me.role;
   $("roleCard").classList.toggle("flipped", !!me.roleRevealed);
   $("roleArt").innerHTML = ROLE_ICONS[me.role] || '<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 12 72 48 108 60 72 72 60 108 48 72 12 60 48 48Z" fill="none" stroke="currentColor" stroke-width="3"/></svg>';
@@ -277,7 +288,9 @@ function renderAction(s) {
     } else {
       html = '<div class="empty-state">Một Thợ săn đang quyết định phát súng cuối cùng.<br><small>Hãy chờ kết quả.</small></div>';
     }
-  } else if (me && me.actionType && (me.alive || me.actionType === "hunterShot")) {
+  } else if (me && me.actionType === "voteRestricted") {
+    html = '<div class="empty-state"><strong>BẠN KHÔNG CÓ QUYỀN BỎ PHIẾU</strong><br><small>' + esc(me.prompt || "Bạn bị mất quyền bỏ phiếu ở vòng này.") + '</small></div>';
+  } else if (me && me.actionType && (me.alive || me.actionType === "hunterShot" || me.actionType === "scapegoatChoice")) {
     html = '<div class="action-prompt">' + esc(me.prompt || "") + '</div>';
     if (me.actionDone) {
       html += '<p class="hint">Đã ghi nhận lựa chọn của bạn. Chờ những người khác...</p>';
@@ -286,6 +299,11 @@ function renderAction(s) {
       html += '<p class="selection-count" id="cupidCount">Đã chọn 0/2 người</p><div class="target-grid">' +
         me.targets.map(t => '<button class="target cupid-target" data-target="' + t.id + '">' + esc(t.name) + '</button>').join("") +
         '</div><button class="primary wide" id="cupidConfirm" disabled>Ghép đôi hai người đã chọn</button>';
+    } else if (me.actionType === "piper") {
+      piperSelected = [];
+      html += '<p class="selection-count" id="piperCount">Đã chọn 0/' + Math.min(2, me.targets.length) + ' người</p><div class="target-grid">' +
+        me.targets.map(t => '<button class="target piper-target" data-target="' + t.id + '">' + esc(t.name) + '</button>').join("") +
+        '</div><button class="primary wide" id="piperConfirm" disabled>Xác nhận mê hoặc</button>';
     } else if (me.actionType === "witch") {
       html += '<div class="action-buttons">';
       if (me.witchSaveAvailable) html += '<button class="primary" id="saveBtn">Dùng bình cứu</button>';
@@ -332,14 +350,30 @@ function renderAction(s) {
     socket.emit("nightAction", { targetIds: cupidSelected });
     cupidConfirm.disabled = true;
   };
+  $("actionArea").querySelectorAll(".piper-target").forEach(b => b.onclick = () => {
+    const id = b.dataset.target;
+    if (piperSelected.includes(id)) piperSelected = piperSelected.filter(x => x !== id);
+    else if (piperSelected.length < 2) piperSelected.push(id);
+    b.classList.toggle("selected", piperSelected.includes(id));
+    $("piperCount").textContent = "Đã chọn " + piperSelected.length + "/" + Math.min(2, me.targets.length) + " người";
+    $("piperConfirm").disabled = piperSelected.length !== Math.min(2, me.targets.length);
+  });
+  const piperConfirm = $("piperConfirm");
+  if (piperConfirm) piperConfirm.onclick = () => {
+    if (piperSelected.length !== Math.min(2, me.targets.length)) return;
+    socket.emit("nightAction", { targetIds: piperSelected });
+    piperConfirm.disabled = true;
+  };
 
-  $("actionArea").querySelectorAll("[data-target]:not(.cupid-target)").forEach(b => b.onclick = () => {
+  $("actionArea").querySelectorAll("[data-target]:not(.cupid-target):not(.piper-target)").forEach(b => b.onclick = () => {
     if (me && me.actionDone) return showToast("Bạn đã gửi lựa chọn.");
     const targetId = b.dataset.target;
     const action = me && me.actionType;
     b.disabled = true;
     if (action === "vote") socket.emit("vote", { targetId });
     else if (action === "hunterShot") socket.emit("hunterShot", { targetId });
+    else if (action === "knightChallenge") socket.emit("knightChallenge", { targetId });
+    else if (action === "scapegoatChoice") socket.emit("scapegoatChoice", { targetId });
     else if (action === "witch") socket.emit("nightAction", { action: "poison", targetId });
     else socket.emit("nightAction", { targetId });
   });

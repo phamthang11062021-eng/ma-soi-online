@@ -318,3 +318,13 @@ body[data-phase="nightIntro"] .ambient,body[data-phase="night"] .ambient{backgro
   .role-card-inner{transition:none}
   .player-tile.pose-transition .tile-person{animation:none!important}
 }
+
+/* V3 role interaction polish */
+.piper-target.selected,.cupid-target.selected{border-color:#e6c27b;background:linear-gradient(135deg,#51432d,#332b25);box-shadow:0 0 0 2px #e6c27b22}
+.role-card[data-role="thief"],.role-card[data-role="scapegoat"]{--role-accent:#c49b69}
+.role-card[data-role="white-wolf"],.role-card[data-role="wolf-cub"]{--role-accent:#bd6b75}
+.role-card[data-role="pied-piper"]{--role-accent:#8fc1b5}
+.role-card[data-role="knight"]{--role-accent:#8da9d2}
+.role-card[data-role="angel"]{--role-accent:#e4d39b}
+#actionArea .selection-count{margin-top:12px}
+@media(prefers-reduced-motion:reduce){.player-tile.pose-transition{transition:none!important}}

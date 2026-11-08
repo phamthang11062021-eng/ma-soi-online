@@ -110,7 +110,7 @@ const ROLE_GUIDES = {
     how: ["Sau khi có người bị loại, chờ lượt Thầy đồng vào ban đêm.", "Chọn một người đã chết trong danh sách.", "Đọc kết quả riêng; bạn không thể dùng năng lực lần thứ hai."],
     tips: "Hãy chọn người mà vai trò của họ có thể giúp giải đáp nhiều nghi vấn nhất.",
     limits: "Chỉ dùng một lần trong cả ván và chỉ chọn người đã bị loại."
-  }
+  },
   thief: {
     name: "Kẻ trộm", team: "Đặc biệt", summary: "Được đổi thân phận bằng một trong hai lá bài dự phòng ở đêm đầu tiên.",
     objective: "Tiếp tục chơi theo phe và điều kiện thắng của role mà bạn chọn.",
@@ -343,7 +343,9 @@ function publicState(room, player) {
     actionType = "knightChallenge"; prompt = "Bạn có một lần thách đấu trong lúc thảo luận.";
     targets = alive(room).filter(p => p.id !== me.id).map(p => ({ id: p.id, name: p.name }));
   }
-  if (room.phase === "vote" && me && me.alive && !room.voteExcluded.has(me.id)) {
+  if (room.phase === "vote" && me && me.alive && room.voteExcluded.has(me.id)) {
+    actionType = "voteRestricted"; prompt = "Bạn bị Người thế thân chọn nên không thể bỏ phiếu ở vòng này.";
+  } else if (room.phase === "vote" && me && me.alive) {
     actionType = "vote"; prompt = "Bỏ phiếu kín: chọn người bạn muốn đưa ra xét xử.";
     targets = alive(room).filter(p => p.id !== me.id).map(p => ({ id: p.id, name: p.name }));
     actionDone = !!room.votes[me.id];
@@ -526,7 +528,7 @@ function advanceNight(room) {
   if (room.status !== "playing" || room.phase !== "night") return;
   if (room.subphase === "thief") {
     const thief = alive(room).find(p => p.role === "thief" && !room.night.done[p.id]);
-    if (thief) { thief.role = room.reserveRoles[0] || "villager"; room.privateNotes[thief.id] = "Hết giờ chọn bài. Bạn được chuyển thành " + ((ROLE_GUIDES[thief.role] || {}).name || "Dân làng") + "."; room.reserveRoles = []; }
+    if (thief) { thief.role = "villager"; thief.roleRevealed = true; room.privateNotes[thief.id] = "Hết giờ chọn bài. Bạn tự động trở thành Dân làng."; room.reserveRoles = []; }
   }
   if (room.subphase === "wolves" && !room.night.wolfTarget) room.night.wolfTarget = plurality(Object.values(room.night.wolfVotes));
   if (room.subphase === "wolvesBonus" && !room.night.wolfBonusTarget) { room.night.wolfBonusTarget = plurality(Object.values(room.night.wolfBonusVotes || {})); room.wolfExtraAttack = false; }
@@ -723,7 +725,9 @@ function handleNightAction(socket, room, player, data) {
     ids.forEach(id => room.enchantedPlayers.add(id));
     room.privateNotes[player.id] = "Bạn đã mê hoặc: " + ids.map(id => getPlayer(room, id).name).join(" và ") + ".";
     addHistoryEvent(room, { message: room.privateNotes[player.id], visibility: "private", playerIds: [player.id], kind: "private" });
-    room.night.done[player.id] = true; advanceNight(room); return;
+    room.night.done[player.id] = true;
+    if (checkWin(room)) { broadcast(room); return; }
+    advanceNight(room); return;
   }
   if (sub === "whiteWolf" && player.role === "white-wolf") {
     if (room.night.done[player.id]) return sendError(socket, "Bạn đã hành động đêm nay.");
@@ -760,6 +764,7 @@ function handleNightAction(socket, room, player, data) {
     room.night.done[player.id] = true; advanceNight(room); return;
   }
   if (sub === "wolves" && isWolfTeam(player.role)) {
+    if (room.night.wolfVotes[player.id]) return sendError(socket, "Bạn đã bỏ phiếu cho mục tiêu đêm nay.");
     if (!target || !target.alive || isWolfTeam(target.role)) return sendError(socket, "Hãy chọn một người còn sống không thuộc phe Ma sói.");
     room.night.wolfVotes[player.id] = target.id;
     const livingWolves = wolves(room);
@@ -798,6 +803,7 @@ function handleNightAction(socket, room, player, data) {
     room.mediumUsed = true; room.night.done[player.id] = true; advanceNight(room); return;
   }
   if (sub === "witch" && player.role === "witch") {
+    if (room.night.done[player.id]) return sendError(socket, "Bạn đã hoàn thành lượt thuốc đêm nay.");
     const action = data && data.action;
     if (action === "save") {
       if (!room.witchSaveAvailable || !room.night.wolfTarget) return sendError(socket, "Không còn bình cứu hoặc đêm nay không có mục tiêu bị cắn.");
