@@ -34,6 +34,14 @@ test("wolves see their own pack awake, while villagers see the pack asleep", () 
   assert.equal(playerPose(room, player("villager", "villager"), packmate, null), "sleeping");
 });
 
+test("wolf pack wakes together during the bonus attack turn", () => {
+  const wolf = player("wolf-a", "wolf");
+  const cub = player("cub", "wolf-cub");
+  const room = { phase: "night", subphase: "wolvesBonus", night: { peeked: {} } };
+  assert.equal(playerPose(room, wolf, cub, null), "acting");
+  assert.equal(playerPose(room, player("villager", "villager"), cub, null), "sleeping");
+});
+
 test("little girl sees wolves awake only after using the peek action", () => {
   const wolf = player("wolf-a", "wolf");
   const girl = player("girl", "littleGirl");
