@@ -1,6 +1,6 @@
 # Ma Sói Online
 
-Website chơi Ma Sói nhiều người bằng tiếng Việt, tự động điều hành ván chơi, không cần quản trò.
+Website chơi Ma Sói nhiều người bằng tiếng Việt, tự động điều hành ván chơi, không cần quản trò. Repository hiện tập trung duy nhất vào Ma Sói Online.
 
 ## Chạy thử trên máy tính
 
@@ -103,33 +103,18 @@ Trong một ván chơi, hệ thống ghi nhận tối đa 150 sự kiện gần 
 
 Chạy kiểm thử bằng `npm test`. Bộ test kiểm tra quyền xem lịch sử công khai/riêng tư, không rò rỉ danh sách người nhận và giới hạn dung lượng nhật ký.
 
+## Trang chủ
 
-## Game Center (nhánh feature/game-center-v3)
+- Mở website tại đường dẫn gốc `/` hoặc trực tiếp `/werewolf`.
+- Trang gốc tự chuyển đến bàn chơi Ma Sói.
+- Thư viện nhân vật và hướng dẫn role: `/roles.html`.
 
-Game Center gom ba trò chơi vào cùng một trang chủ:
+## Kiểm thử
 
-- Trang chủ: `/`.
-- Ma Sói Online: `/werewolf` (giữ giao diện và logic Ma Sói hiện tại).
-- Bài Màu Số: `/uno` (2–10 người, chia 7 lá, đánh theo màu/số, đổi màu, +2, +4, đảo chiều, cấm lượt, gọi/bắt lỗi UNO, giới hạn thời gian mỗi lượt).
-- Cờ Tỷ Phú: `/property` (2–10 người, bàn cờ 40 ô, mua đất, trả tiền thuê, đấu giá, xây/bán nhà, thế chấp, giao dịch, vào tù, phá sản và kết thúc theo thời lượng).
+Chạy `npm test` để kiểm tra logic Ma Sói và lịch sử ván chơi.
 
-### Luồng chơi
+## Lưu ý triển khai
 
-1. Người tạo phòng là chủ phòng.
-2. Bạn bè nhập mã phòng và chọn sẵn sàng.
-3. Chủ phòng bắt đầu khi tất cả người chơi đã sẵn sàng.
-4. Trạng thái trò chơi được máy chủ xử lý và gửi realtime qua Socket.IO.
-5. Mỗi trò chơi có session lưu trong trình duyệt để người chơi có thể kết nối lại bằng token cũ.
-
-### Kiểm thử
-
-Chạy `npm test` để kiểm tra:
-- Luật và trạng thái bài Màu Số.
-- Luật bàn cờ, mua bán tài sản, đấu giá, nợ, nhà, giao dịch và kết thúc Cờ Tỷ Phú.
-- Quyền chủ phòng, kết nối lại, chuyển Host khi mất kết nối và bảo vệ bài trên tay không bị lộ cho người khác.
-
-### Lưu ý triển khai
-
-- Các phòng Game Center hiện lưu trong bộ nhớ tiến trình Node.js; restart/deploy máy chủ sẽ làm mất phòng đang chơi.
-- Nên chạy một instance Node.js duy nhất khi sử dụng bản hiện tại; chưa có database hoặc Redis adapter để đồng bộ nhiều instance.
-- Các thay đổi được phát triển trên nhánh `feature/game-center-v3` và Pull Request #2. Chỉ sau khi kiểm thử xong và merge vào `main`, Render mới triển khai phiên bản Game Center nếu dịch vụ đang bật Auto-Deploy từ `main`.
+- Phòng và trạng thái ván hiện lưu trong bộ nhớ tiến trình máy chủ. Khi dịch vụ khởi động lại, phòng đang chơi có thể mất.
+- Chạy một instance Node.js duy nhất; chưa có database hoặc Redis adapter để đồng bộ nhiều instance.
+- Render dùng `npm install` để build và `npm start` để chạy. Endpoint kiểm tra sức khỏe: `/health`.
