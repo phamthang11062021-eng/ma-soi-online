@@ -3,7 +3,7 @@ on:
   push:
     branches: [main, feature/werewolf-only]
   pull_request:
-    branches: [main, feature/game-center-v3]
+    branches: [main]
 jobs:
   syntax:
     runs-on: ubuntu-latest

@@ -28,8 +28,26 @@ const empty = document.getElementById("emptyState");
 document.getElementById("playableCount").textContent = roles.filter(r => r.status === "playable").length;
 document.getElementById("plannedCount").textContent = roles.filter(r => r.status === "planned").length;
 
+const ROLE_ICONS = {
+wolf:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M25 43 17 15l29 17q14-8 28 0l29-17-8 31q8 13 4 31-7 30-39 34-32-4-39-34-4-19 4-34Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="m39 55 10 5m32-5L71 60M47 77q13 11 26 0M60 60v8m-10 19 10 8 10-8" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>',
+villager:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="m18 55 42-34 42 34v48H18Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M45 103V72q15-16 30 0v31M28 60h64M52 46q8-8 16 0" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>',
+seer:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="m60 12 34 35-34 61-34-61Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="m26 47 34 13 34-13M60 60v48M45 36l15 24 15-24M60 4v-2M12 47H4m112 0h-8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>',
+witch:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M44 18h32v18l13 13v48q0 9-9 9H40q-9 0-9-9V49l13-13Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M44 18h32M45 36h30M32 70q14-9 28 0t29 0M47 82l8 8 18-20" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>',
+protector:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 10 99 25v29q0 35-39 56Q21 89 21 54V25Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M60 32v55M38 54h44M60 40l7 14-7 14-7-14Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/></svg>',
+hunter:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M29 14q73 46 0 92M29 14l62 46-62 46" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 60h83m-15-15 15 15-15 15" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+cupid:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 99 20 61C-1 37 30 8 52 31l8 9 8-9c22-23 53 6 32 30Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="m18 92 78-63m-17 0 17 0 0 17" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+elder:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 16q-24 0-27 25-20 4-16 25 1 17 20 20h46q19-3 20-20 4-21-16-25-3-25-27-25Z" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M60 86v24m-13-8 13-9 13 9M44 54h2m28 0h2m-30 17q14 10 28 0" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>',
+littleGirl:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 9q22 23 3 39 17-6 18-19 19 29-3 47-19 16-39 0-20-19 1-43-1 17 12 18Q49 32 60 9Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M39 88h42v18H39zM34 106h52M48 88V78h24v10" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/></svg>',
+mayor:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="m17 40 24 18 19-36 19 36 24-18-9 55H26Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M26 78h68M31 104h58M39 94h42" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="17" cy="34" r="6" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="60" cy="17" r="6" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="103" cy="34" r="6" fill="none" stroke="currentColor" stroke-width="3"/></svg>',
+medium:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M35 56q0-29 25-29t25 29q0 18 13 27H22q13-9 13-27Z" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"/><path d="M48 93q3 15 12 15t12-15M60 27V12m-9 0h18M25 46l-9-7m79 7 9-7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="60" cy="57" r="5" fill="currentColor"/></svg>'
+};
+const GENERIC_AVATAR='<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="27" r="14" fill="currentColor"/><path d="M13 72q2-25 27-25t27 25" fill="currentColor"/></svg>';
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function roleIconSvg(id) {
+  return ROLE_ICONS[id] || '<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 12 72 48 108 60 72 72 60 108 48 72 12 60 48 48Z" fill="none" stroke="currentColor" stroke-width="3"/></svg>';
 }
 function matchesFilter(role) {
   if (activeFilter === "playable") return role.status === "playable";
@@ -46,7 +64,7 @@ function renderRoles() {
       '<div class="card-inner">' +
         '<section class="card-face card-front">' +
           '<div class="card-top"><span class="faction">' + escapeHtml(role.factionLabel) + '</span><span class="status ' + (planned ? "planned" : "") + '">' + (planned ? "SẮP PHÁT TRIỂN" : "ĐANG TRONG GAME") + '</span></div>' +
-          '<div class="sigil-wrap"><span class="sigil">' + escapeHtml(role.sigil) + '</span></div>' +
+          '<div class="sigil-wrap"><span class="sigil">' + roleIconSvg(role.id) + '</span></div>' +
           '<h3 class="role-name">' + escapeHtml(role.name) + '</h3>' +
           '<p class="role-summary">' + escapeHtml(role.summary) + '</p>' +
           '<div class="card-bottom"><span class="card-index">ARCHIVE / ' + String(index + 1).padStart(2,"0") + '</span><button class="flip-btn" type="button">Xem năng lực ↗</button></div>' +
