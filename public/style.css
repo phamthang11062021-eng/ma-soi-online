@@ -223,7 +223,7 @@ body[data-phase="night"] .notice{border-color:#53627b;background:linear-gradient
 .tile-name{width:100%;font-size:clamp(8px,.9vw,11px);line-height:1.2;text-align:center;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
 .tile-status{font-size:clamp(6px,.65vw,8px);line-height:1.1;text-align:center;letter-spacing:.3px}
 .player-tile .host-badge{font-size:6px;padding:2px 4px}
-.player-tile .player-actions{position:absolute;left:50%;bottom:-9px;inset:auto auto -9px;transform:translateX(-50%);display:flex;gap:3px;z-index:7}
+.player-tile .player-actions{position:absolute;inset:auto auto -9px 50%;transform:translateX(-50%);display:flex;gap:3px;z-index:7}
 .player-tile .player-action{width:20px;height:18px;padding:0;font-size:10px;line-height:1;border-radius:5px}
 .player-tile.managed{padding-bottom:10px}
 .player-tile.pose-sleeping .tile-person{transform:perspective(120px) rotateX(62deg) translateY(6px) scale(.72,.52);opacity:.42}
@@ -242,8 +242,11 @@ body[data-phase="night"] .notice{border-color:#53627b;background:linear-gradient
 .seat-card-back{position:absolute;left:50%;top:6px;z-index:5;width:33px;height:47px;transform:translateX(-50%);display:grid;place-items:center;border:2px solid #d4b273;border-radius:6px;background:radial-gradient(circle at 50% 35%,#51364a,#17151e 72%);color:#f0d39a;box-shadow:0 5px 12px #0009,inset 0 0 0 2px #d9b77922;pointer-events:none}
 .seat-card-back:before{content:"";position:absolute;inset:3px;border:1px solid #d9b77955;border-radius:3px}
 .seat-card-back span{font-family:Georgia,serif;font-size:21px}
-.table-board[data-phase="dealing"] .seat-card-back{animation:cardDeal .55s cubic-bezier(.2,.8,.2,1) var(--seat-delay) both}
-@keyframes cardDeal{from{opacity:0;transform:translate(-50%,-90px) rotate(-25deg) scale(.5)}to{opacity:1;transform:translate(-50%,0) rotate(0) scale(1)}}
+.deal-fly-layer{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.dealing-flying-card{position:absolute;left:50%;top:50%;width:34px;height:49px;display:grid;place-items:center;border:2px solid #d6b16b;border-radius:6px;background:radial-gradient(circle at 50% 30%,#53344a,#141922 75%);color:#f0d39a;box-shadow:0 8px 18px #000b,inset 0 0 0 2px #d9b77920;animation:flyCard .55s cubic-bezier(.2,.8,.2,1) var(--seat-delay) both}
+.dealing-flying-card:before{content:"";position:absolute;inset:3px;border:1px solid #d9b77955;border-radius:3px}
+.dealing-flying-card span{font-family:Georgia,serif;font-size:21px}
+@keyframes flyCard{from{left:50%;top:50%;opacity:0;transform:translate(-50%,-50%) rotate(-22deg) scale(.55)}to{left:var(--seat-x);top:var(--seat-y);opacity:1;transform:translate(-50%,-50%) rotate(0) scale(1)}}
 body[data-phase="nightIntro"] .table-board,body[data-phase="night"] .table-board{background:radial-gradient(ellipse at 50% 48%,#182538 0,#111925 55%,#090e17 100%);border-color:#53627b}
 body[data-phase="nightIntro"] .table-center,body[data-phase="night"] .table-center{filter:brightness(.5) saturate(.75)}
 body[data-phase="nightIntro"] .table-candle:before,body[data-phase="night"] .table-candle:before{opacity:.5;box-shadow:0 0 8px 3px #7793c36b}
@@ -256,7 +259,7 @@ body[data-phase="daybreak"] .table-board .table-center{animation:dayRise 2.4s ea
 .deal-deck span{position:absolute;inset:0;display:grid;place-items:center;border:2px solid #d6b16b;border-radius:8px;background:linear-gradient(145deg,#392333,#101820);color:#f0d39a;font-size:25px;box-shadow:0 8px 18px #0008}
 .deal-deck span:nth-child(1){transform:rotate(-14deg) translate(-5px,2px)}.deal-deck span:nth-child(2){transform:rotate(10deg) translate(5px,-2px)}.deal-deck span:nth-child(3){animation:deckShuffle .6s ease-in-out infinite alternate}
 .deal-progress{height:4px;max-width:250px;margin:14px auto;background:#394352;border-radius:99px;overflow:hidden}
-.deal-progress i{display:block;width:100%;height:100%;background:linear-gradient(90deg,#8f6a3c,#f1d39a);transform-origin:left;animation:dealProgress 4s linear both}
+.deal-progress i{display:block;width:100%;height:100%;background:linear-gradient(90deg,#8f6a3c,#f1d39a);transform-origin:left;animation:dealProgress var(--deal-duration,4s) linear both}
 @keyframes dealProgress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 .face-down-card{width:94px;height:138px;margin:0 auto 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:2px solid #d6b16b;border-radius:12px;background:radial-gradient(circle at 50% 30%,#53344a,#141922 75%);box-shadow:0 10px 26px #0008,inset 0 0 0 4px #d9b77918;animation:cardFloat 2s ease-in-out infinite}
 .face-down-card span{font-size:35px;color:#f0d39a}.face-down-card b{font-family:Georgia,serif;font-size:28px;color:#f0d39a}.face-down-card small{font-size:7px;letter-spacing:1px;color:#cbb17f}

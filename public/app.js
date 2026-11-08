@@ -83,7 +83,8 @@ function render(s) {
   state = s; selected = null;
   document.body.dataset.phase = s.phase || "lobby";
   $("tableBoard").dataset.phase = s.phase || "lobby";
-  if (s.phase === "dealing" && previousPhase !== "dealing") {
+  const phaseChanged = previousPhase !== s.phase;
+  if (s.phase === "dealing" && phaseChanged) {
     currentGuideRole = null;
     $("roleCard").classList.remove("flipped", "role-card-reveal");
   }
@@ -102,7 +103,21 @@ function render(s) {
     s.phase === "vote" ? "BỎ PHIẾU · NGÀY " + s.day :
     s.phase === "deathshot" ? "PHÁT SÚNG CUỐI CÙNG" : s.phase === "intermission" ? "KẾT QUẢ BỎ PHIẾU" : "KẾT THÚC";
   const me = s.self;
-  const dealingCards = s.phase === "dealing" || s.phase === "roleReveal";
+  const dealDuration = Math.max(2, Number(s.settings && s.settings.dealSeconds || 4));
+  $("tableBoard").style.setProperty("--deal-duration", dealDuration + "s");
+  if (s.phase === "dealing" && phaseChanged) {
+    const total = Math.max(1, s.players.length);
+    $("dealFlyLayer").innerHTML = s.players.map((p, i) => {
+      const angle = (Math.PI * 2 * i / total) - Math.PI / 2;
+      const x = 50 + Math.cos(angle) * 41;
+      const y = 50 + Math.sin(angle) * 39;
+      const delay = i * (dealDuration * 650 / total);
+      return '<div class="dealing-flying-card" style="--seat-x:' + x + '%;--seat-y:' + y + '%;--seat-delay:' + delay + 'ms"><span>☾</span></div>';
+    }).join("");
+  } else if (s.phase !== "dealing") {
+    $("dealFlyLayer").innerHTML = "";
+  }
+  const dealingCards = s.phase === "roleReveal";
   $("tableStatus").textContent =
     s.phase === "lobby" ? "MỌI NGƯỜI ĐANG TẬP TRUNG" :
     s.phase === "dealing" ? "QUẢN TRÒ ĐANG CHIA BÀI" :
@@ -113,7 +128,7 @@ function render(s) {
   $("players").innerHTML = s.players.map((p, i) => {
     const count = Math.max(1, s.players.length);
     const angle = (Math.PI * 2 * i / count) - Math.PI / 2;
-    const x = 50 + Math.cos(angle) * 43;
+    const x = 50 + Math.cos(angle) * 41;
     const y = 50 + Math.sin(angle) * 39;
     const pose = p.pose || (!p.alive ? "dead" : "sitting");
     const poseChanged = lastPoses.has(p.id) && lastPoses.get(p.id) !== pose;
