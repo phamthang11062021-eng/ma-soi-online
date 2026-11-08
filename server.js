@@ -5,6 +5,7 @@ const path = require("path");
 const { Server } = require("socket.io");
 const { addHistoryEvent, visibleHistory } = require("./lib/history");
 const { playerPose, allConnectedPlayersConfirmed } = require("./lib/table-presentation");
+const { isWolfTeam, piperHasWon, angelWinsOnVote, chooseScapegoat } = require("./lib/role-rules");
 
 const app = express();
 const server = http.createServer(app);
@@ -110,6 +111,62 @@ const ROLE_GUIDES = {
     tips: "Hãy chọn người mà vai trò của họ có thể giúp giải đáp nhiều nghi vấn nhất.",
     limits: "Chỉ dùng một lần trong cả ván và chỉ chọn người đã bị loại."
   }
+  thief: {
+    name: "Kẻ trộm", team: "Đặc biệt", summary: "Được đổi thân phận bằng một trong hai lá bài dự phòng ở đêm đầu tiên.",
+    objective: "Tiếp tục chơi theo phe và điều kiện thắng của role mà bạn chọn.",
+    power: "Ở đêm đầu tiên, chọn một trong hai role dự phòng. Role mới thay thế Kẻ trộm ngay lập tức.",
+    how: ["Chờ lượt Kẻ trộm trong đêm đầu.", "Chọn một trong hai lá bài dự phòng.", "Đọc lại hướng dẫn của role mới."],
+    tips: "Chọn role phù hợp với số người và diễn biến ván chơi.",
+    limits: "Nếu hết giờ, bạn tự động trở thành Dân làng. Hai role dự phòng không được chia cho người khác."
+  },
+  "white-wolf": {
+    name: "Sói trắng", team: "Phe Sói · mục tiêu riêng", summary: "Một biến thể sói có thể săn đồng đội vào các đêm xen kẽ.",
+    objective: "Trở thành người sống sót cuối cùng để giành chiến thắng riêng.",
+    power: "Từ đêm thứ hai, cứ cách một đêm bạn được chọn một người thuộc phe Sói khác để tấn công. Nếu không còn Sói khác, bạn có thể tấn công một người bất kỳ.",
+    how: ["Ban đêm, chờ lượt Sói trắng.", "Chọn mục tiêu hợp lệ.", "Tiếp tục ẩn thân và tìm cách sống sót đến cuối cùng."],
+    tips: "Đừng để bầy sói phát hiện mục tiêu riêng của bạn.",
+    limits: "Chỉ hành động vào các đêm xen kẽ. Chỉ thắng riêng khi là người sống sót cuối cùng."
+  },
+  "wolf-cub": {
+    name: "Sói con", team: "Phe Ma sói", summary: "Cái chết do dân làng bỏ phiếu loại giúp bầy sói có thêm một đòn tấn công.",
+    objective: "Cùng phe Ma sói loại bỏ phe dân.",
+    power: "Nếu bị loại bởi bỏ phiếu ban ngày, bầy sói được thêm một lượt tấn công trong đêm kế tiếp.",
+    how: ["Tham gia thảo luận như Ma sói.", "Nếu bị dân làng bỏ phiếu loại, hiệu ứng thêm đòn tự kích hoạt.", "Đồng đội dùng lượt tấn công bổ sung vào đêm kế tiếp."],
+    tips: "Đồng đội có thể tận dụng lượt tấn công thêm để tạo lợi thế.",
+    limits: "Chỉ kích hoạt khi bị loại bằng bỏ phiếu, không kích hoạt khi chết ban đêm hoặc do kỹ năng."
+  },
+  scapegoat: {
+    name: "Người thế thân", team: "Phe Dân làng", summary: "Bị đưa ra thay dân làng khi kết quả bỏ phiếu hòa.",
+    objective: "Giúp phe dân tìm và loại bỏ Ma sói.",
+    power: "Nếu lượt bỏ phiếu có phiếu nhưng hòa và bạn còn sống, bạn bị loại thay cho kết quả hòa. Trước khi ván tiếp tục, bạn chọn một người không được bỏ phiếu ở lượt kế tiếp.",
+    how: ["Không cần hành động ban đêm.", "Nếu bị loại do hòa phiếu, chọn một người còn sống.", "Người được chọn sẽ mất quyền bỏ phiếu ở vòng kế tiếp."],
+    tips: "Cân nhắc người có ảnh hưởng lớn đến kết quả bỏ phiếu.",
+    limits: "Quyền chọn chỉ dùng một lần khi bị loại do hòa phiếu."
+  },
+  "pied-piper": {
+    name: "Người thổi sáo", team: "Độc lập", summary: "Mỗi đêm mê hoặc hai người chưa bị mê hoặc.",
+    objective: "Mê hoặc tất cả người chơi còn sống khác để giành chiến thắng riêng.",
+    power: "Mỗi đêm chọn tối đa hai người còn sống khác chưa bị mê hoặc. Trạng thái mê hoặc được giữ qua các ngày.",
+    how: ["Chờ lượt Người thổi sáo.", "Chọn hai người chưa bị mê hoặc.", "Tiếp tục cho đến khi tất cả người chơi còn sống khác đều bị mê hoặc."],
+    tips: "Ưu tiên mê hoặc những người có khả năng sống lâu.",
+    limits: "Không thể tự mê hoặc mình hoặc chọn người đã chết."
+  },
+  knight: {
+    name: "Hiệp sĩ", team: "Phe Dân làng", summary: "Một lần trong ván có thể thách đấu một người vào ban ngày.",
+    objective: "Dùng một lần thách đấu để giúp dân làng loại bỏ Ma sói.",
+    power: "Trong lúc thảo luận, chọn một người để thách đấu. Nếu mục tiêu thuộc phe Sói, mục tiêu bị loại; nếu không, Hiệp sĩ bị loại.",
+    how: ["Chọn một người còn sống trong giai đoạn thảo luận.", "Xác nhận thách đấu một lần duy nhất.", "Chờ quản trò tự động công bố kết quả."],
+    tips: "Chỉ thách đấu khi đã có đủ căn cứ.",
+    limits: "Chỉ được thách đấu một lần trong cả ván."
+  },
+  angel: {
+    name: "Thiên sứ", team: "Độc lập", summary: "Có mục tiêu chiến thắng đặc biệt trong ngày đầu tiên.",
+    objective: "Giành chiến thắng riêng nếu bị dân làng bỏ phiếu loại ở ngày đầu tiên.",
+    power: "Nếu bị bỏ phiếu loại ở lần bỏ phiếu đầu tiên, ván kết thúc và Thiên sứ chiến thắng. Nếu sống qua lượt đó, bạn trở thành Dân làng.",
+    how: ["Tham gia thảo luận ngày đầu tiên.", "Tìm cách khiến dân làng nghi ngờ và bỏ phiếu cho mình.", "Nếu không bị loại ở ngày đầu, tiếp tục với vai trò Dân làng."],
+    tips: "Cân bằng giữa việc gây nghi ngờ và không để Sói tấn công ban đêm.",
+    limits: "Chỉ thắng nếu bị loại bằng bỏ phiếu ở ngày đầu tiên, không thắng khi chết ban đêm."
+  },
 };
 
 function shuffle(a) {
@@ -120,18 +177,15 @@ function shuffle(a) {
   }
   return x;
 }
-const CONFIGURABLE_ROLES = ["seer", "witch", "protector", "cupid", "hunter", "elder", "littleGirl", "mayor", "medium"];
+const CONFIGURABLE_ROLES = ["seer", "witch", "protector", "cupid", "hunter", "elder", "littleGirl", "mayor", "medium", "thief", "white-wolf", "wolf-cub", "scapegoat", "pied-piper", "knight", "angel"];
 function rolesFor(count, settings = {}) {
   const automaticWolfCount = count >= 14 ? 4 : count >= 10 ? 3 : count >= 7 ? 2 : 1;
   const requestedWolfCount = Number(settings.wolfCount) || 0;
   const wolfCount = Math.min(Math.max(1, requestedWolfCount || automaticWolfCount), Math.max(1, count - 2));
   const roles = Array(wolfCount).fill("wolf");
-
   if (settings.customRoles) {
     const enabled = new Set(Array.isArray(settings.enabledRoles) ? settings.enabledRoles : CONFIGURABLE_ROLES);
-    for (const role of CONFIGURABLE_ROLES) {
-      if (enabled.has(role) && roles.length < count - 1) roles.push(role);
-    }
+    for (const role of CONFIGURABLE_ROLES) if (enabled.has(role) && roles.length < count - 1) roles.push(role);
   } else {
     roles.push("seer", "witch");
     if (count >= 6) roles.push("protector");
@@ -142,9 +196,17 @@ function rolesFor(count, settings = {}) {
     if (count >= 11) roles.push("mayor");
     if (count >= 12) roles.push("medium");
   }
-
   while (roles.length < count) roles.push("villager");
-  return shuffle(roles);
+  const assigned = shuffle(roles);
+  let reserveRoles = [];
+  if (assigned.includes("thief")) {
+    const available = [...new Set(["villager", ...CONFIGURABLE_ROLES.filter(role =>
+      !assigned.includes(role) && !isWolfTeam(role) && role !== "thief"
+    )])];
+    reserveRoles = shuffle(available).slice(0, 2);
+    while (reserveRoles.length < 2) reserveRoles.push("villager");
+  }
+  return { roles: assigned, reserveRoles };
 }
 function clearTimer(room) {
   if (room.timer) clearTimeout(room.timer);
@@ -153,28 +215,42 @@ function clearTimer(room) {
 }
 function sendError(socket, message) { socket.emit("errorMessage", message); }
 function alive(room) { return room.players.filter(p => p.alive); }
-function wolves(room) { return alive(room).filter(p => p.role === "wolf"); }
+function wolves(room) { return alive(room).filter(p => isWolfTeam(p.role)); }
 function getPlayer(room, id) { return room.players.find(p => p.id === id); }
 function checkWin(room) {
   const living = alive(room);
-  const wolfCount = living.filter(p => p.role === "wolf").length;
-  const townCount = living.length - wolfCount;
+  const packWolfCount = living.filter(p => p.role === "wolf" || p.role === "wolf-cub").length;
+  const whiteWolfCount = living.filter(p => p.role === "white-wolf").length;
+  const townCount = living.length - packWolfCount - whiteWolfCount;
+  const piper = living.find(p => p.role === "pied-piper");
+  if (piper && piperHasWon(living, room.enchantedPlayers, piper.id)) {
+    room.status = "ended"; room.phase = "ended"; room.winner = "pied-piper";
+    room.announcement = "Người thổi sáo đã mê hoặc tất cả người chơi còn sống và giành chiến thắng!";
+    addHistoryEvent(room, { message: "Kết thúc ván: Người thổi sáo chiến thắng.", kind: "result" });
+    clearTimer(room); return true;
+  }
+  if (whiteWolfCount === 1 && living.length === 1) {
+    room.status = "ended"; room.phase = "ended"; room.winner = "white-wolf";
+    room.announcement = "Sói trắng là người sống sót cuối cùng và giành chiến thắng!";
+    addHistoryEvent(room, { message: "Kết thúc ván: Sói trắng chiến thắng.", kind: "result" });
+    clearTimer(room); return true;
+  }
   if (room.loverPair && room.loverPair.length === 2) {
     const [a, b] = room.loverPair.map(id => getPlayer(room, id));
-    if (a && b && a.alive && b.alive && ((a.role === "wolf") !== (b.role === "wolf")) && living.length === 2) {
+    if (a && b && a.alive && b.alive && (isWolfTeam(a.role) !== isWolfTeam(b.role)) && living.length === 2) {
       room.status = "ended"; room.phase = "ended"; room.winner = "lovers";
       room.announcement = "Đôi tình nhân khác phe đã sống sót đến cuối cùng và giành chiến thắng!";
       addHistoryEvent(room, { message: "Kết thúc ván: đôi tình nhân khác phe giành chiến thắng.", kind: "result" });
       clearTimer(room); return true;
     }
   }
-  if (wolfCount === 0) {
+  if (packWolfCount === 0 && whiteWolfCount === 0) {
     room.status = "ended"; room.phase = "ended"; room.winner = "town";
     room.announcement = "Dân làng đã tìm ra toàn bộ Ma sói!";
     addHistoryEvent(room, { message: "Kết thúc ván: phe Dân làng chiến thắng.", kind: "result" });
     clearTimer(room); return true;
   }
-  if (wolfCount >= townCount) {
+  if (packWolfCount > 0 && packWolfCount >= townCount + whiteWolfCount) {
     room.status = "ended"; room.phase = "ended"; room.winner = "wolf";
     room.announcement = "Ma sói đã chiếm ưu thế và chiến thắng!";
     addHistoryEvent(room, { message: "Kết thúc ván: phe Ma sói chiến thắng.", kind: "result" });
