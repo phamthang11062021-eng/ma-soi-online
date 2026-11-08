@@ -18,8 +18,35 @@
 <section id="game" class="hidden">
 <div class="room-top"><div><div class="eyebrow" id="phaseLabel">SẢNH CHỜ</div><h2 id="roomTitle">Phòng <span id="roomCodeLabel"></span></h2></div><button id="copyBtn" class="secondary small">Sao chép mã</button></div>
 <div id="notice" class="notice">Đang chờ người chơi...</div>
-<div id="roleCard" class="role-card hidden"><div class="role-card-top"><span class="eyebrow">THẺ VAI TRÒ BÍ MẬT</span><span id="roleTeam" class="role-team">PHE DÂN LÀNG</span></div><div class="role-art"><div class="role-art-frame"><span id="roleArt" class="role-art-icon">✦</span><span class="role-art-glow"></span></div><div class="role-art-caption">MA SÓI ONLINE · ROLE CARD</div></div><h2 id="roleName">Dân làng</h2><p id="roleDesc"></p><div id="privateInfo" class="private-info"></div><button id="guideToggle" class="guide-toggle">Ẩn hướng dẫn</button><div id="guidePanel" class="guide-panel"></div></div>
-<div class="game-layout"><div class="panel players-panel"><div class="panel-heading"><h3>Dân làng</h3><span id="countLabel">0/16</span></div><div id="players" class="players"></div><div id="lobbyControls"><button id="readyBtn" class="primary wide">Tôi đã sẵn sàng</button><button id="startBtn" class="secondary wide">👑 Chủ phòng: Bắt đầu ván chơi</button><p id="hostHint" class="hint">Chỉ chủ phòng mới có quyền bắt đầu ván chơi.</p>
+<div id="roleCard" class="role-card hidden">
+  <div class="role-card-inner">
+    <div class="role-card-face role-card-back" aria-hidden="true">
+      <div class="role-card-back-moon">☾</div>
+      <div class="role-card-back-title">BÍ MẬT CỦA BẠN</div>
+      <div class="role-card-back-subtitle">MA SÓI ONLINE · ROLE CARD</div>
+      <div class="role-card-back-seal">✦</div>
+    </div>
+    <div class="role-card-face role-card-front">
+      <div class="role-card-top"><span class="eyebrow">THẺ VAI TRÒ BÍ MẬT</span><span id="roleTeam" class="role-team">PHE DÂN LÀNG</span></div>
+      <div class="role-art"><div class="role-art-frame"><span id="roleArt" class="role-art-icon">✦</span><span class="role-art-glow"></span></div><div class="role-art-caption">MA SÓI ONLINE · ROLE CARD</div></div>
+      <h2 id="roleName">Dân làng</h2><p id="roleDesc"></p><div id="privateInfo" class="private-info"></div>
+      <button id="guideToggle" class="guide-toggle">Ẩn hướng dẫn</button><div id="guidePanel" class="guide-panel"></div>
+    </div>
+  </div>
+</div>
+<div class="game-layout"><div class="panel players-panel"><div class="panel-heading"><h3>BÀN CHƠI · NGÔI LÀNG</h3><span id="countLabel">0/16</span></div>
+<div id="tableBoard" class="table-board" data-phase="lobby">
+  <div class="table-center">
+    <span class="table-candle candle-one"></span><span class="table-candle candle-two"></span><span class="table-candle candle-three"></span>
+    <div class="table-emblem">☾</div>
+    <div class="table-title">MA SÓI</div>
+    <div class="table-subtitle">HỘI ĐỒNG DÂN LÀNG</div>
+    <div id="tableDeck" class="table-deck" aria-hidden="true"><span>☾</span><span>✦</span><span>☽</span></div>
+    <div id="tableStatus" class="table-status">MỌI NGƯỜI ĐANG TẬP TRUNG</div>
+  </div>
+  <div id="players" class="players table-seats"></div>
+</div>
+<div id="lobbyControls"><button id="readyBtn" class="primary wide">Tôi đã sẵn sàng</button><button id="startBtn" class="secondary wide">👑 Chủ phòng: Bắt đầu ván chơi</button><p id="hostHint" class="hint">Chỉ chủ phòng mới có quyền bắt đầu ván chơi.</p>
 <div id="hostSettings" class="host-settings hidden">
   <div class="host-settings-title"><strong>Cài đặt ván chơi</strong><span>CHỈ CHỦ PHÒNG</span></div>
   <div class="settings-grid">
@@ -27,6 +54,8 @@
     <label>Thảo luận<select id="settingDiscussion"><option value="60">1 phút</option><option value="90">1 phút 30 giây</option><option value="120">2 phút</option><option value="180">3 phút</option><option value="240">4 phút</option><option value="300">5 phút</option></select></label>
     <label>Bỏ phiếu<select id="settingVote"><option value="15">15 giây</option><option value="30">30 giây</option><option value="45">45 giây</option><option value="60">1 phút</option><option value="90">1 phút 30 giây</option><option value="120">2 phút</option></select></label>
     <label>Mỗi lượt đêm<select id="settingNight"><option value="10">10 giây</option><option value="15">15 giây</option><option value="20">20 giây</option><option value="30">30 giây</option><option value="35">35 giây</option><option value="45">45 giây</option><option value="60">1 phút</option><option value="90">1 phút 30 giây</option></select></label>
+    <label>Hiệu ứng chia bài<select id="settingDeal"><option value="2">2 giây</option><option value="3">3 giây</option><option value="4">4 giây</option><option value="5">5 giây</option><option value="6">6 giây</option><option value="7">7 giây</option><option value="8">8 giây</option></select></label>
+    <label>Thời gian xem role<select id="settingRoleReveal"><option value="10">10 giây</option><option value="15">15 giây</option><option value="20">20 giây</option><option value="25">25 giây</option><option value="30">30 giây</option><option value="45">45 giây</option><option value="60">60 giây</option></select></label>
     <label>Chế độ chia role<select id="settingRoleMode"><option value="auto">Tự động theo số người</option><option value="custom">Tự chọn role</option></select></label>
     <label>Số Ma sói<select id="settingWolfCount"><option value="0">Tự động</option><option value="1">1 Ma sói</option><option value="2">2 Ma sói</option><option value="3">3 Ma sói</option><option value="4">4 Ma sói</option></select></label>
   </div>

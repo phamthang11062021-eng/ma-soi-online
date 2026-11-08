@@ -19,6 +19,7 @@ const socket = io();
 const $ = (id) => document.getElementById(id);
 let state = null, selected = null, myToken = "", myCode = "", toastTimer = null;
 let currentGuideRole = null, guideOpen = true, cupidSelected = [], renderedSettingsKey = "";
+let lastPoses = new Map(), previousPhase = null;
 const showToast = (msg) => {
   $("toast").textContent = msg;
   $("toast").classList.add("show");
@@ -81,24 +82,52 @@ socket.on("state", render);
 function render(s) {
   state = s; selected = null;
   document.body.dataset.phase = s.phase || "lobby";
+  $("tableBoard").dataset.phase = s.phase || "lobby";
+  if (s.phase === "dealing" && previousPhase !== "dealing") {
+    currentGuideRole = null;
+    $("roleCard").classList.remove("flipped", "role-card-reveal");
+  }
+  previousPhase = s.phase;
   $("roomCodeLabel").textContent = s.code;
   $("countLabel").textContent = s.playerCount + "/" + ((s.settings && s.settings.maxPlayers) || 16);
   $("notice").textContent = s.announcement || "";
   $("phaseLabel").textContent =
     s.phase === "lobby" ? "SẢNH CHỜ" :
-    s.phase === "night" ? "ĐÊM " + s.day :
+    s.phase === "dealing" ? "QUẢN TRÒ ĐANG CHIA BÀI" :
+    s.phase === "roleReveal" ? "LẬT THẺ NHÂN VẬT" :
+    s.phase === "nightIntro" ? "ĐÊM XUỐNG" :
+    s.phase === "daybreak" ? "BÌNH MINH" :
+    s.phase === "night" ? "ĐÊM " + (s.day + 1) :
     s.phase === "discussion" ? "THẢO LUẬN · NGÀY " + s.day :
     s.phase === "vote" ? "BỎ PHIẾU · NGÀY " + s.day :
     s.phase === "deathshot" ? "PHÁT SÚNG CUỐI CÙNG" : s.phase === "intermission" ? "KẾT QUẢ BỎ PHIẾU" : "KẾT THÚC";
+  const me = s.self;
+  const dealingCards = s.phase === "dealing" || s.phase === "roleReveal";
+  $("tableStatus").textContent =
+    s.phase === "lobby" ? "MỌI NGƯỜI ĐANG TẬP TRUNG" :
+    s.phase === "dealing" ? "QUẢN TRÒ ĐANG CHIA BÀI" :
+    s.phase === "roleReveal" ? "HÃY LẬT THẺ CỦA BẠN" :
+    s.phase === "nightIntro" || s.phase === "night" ? "CẢ NGÔI LÀNG ĐANG NGỦ" :
+    s.phase === "daybreak" || s.phase === "discussion" || s.phase === "vote" ? "DÂN LÀNG ĐÃ THỨC DẬY" :
+    s.phase === "ended" ? "VÁN CHƠI ĐÃ KẾT THÚC" : "DIỄN BIẾN ĐANG TIẾP TỤC";
   $("players").innerHTML = s.players.map((p, i) => {
+    const count = Math.max(1, s.players.length);
+    const angle = (Math.PI * 2 * i / count) - Math.PI / 2;
+    const x = 50 + Math.cos(angle) * 43;
+    const y = 50 + Math.sin(angle) * 39;
+    const pose = p.pose || (!p.alive ? "dead" : "sitting");
+    const poseChanged = lastPoses.has(p.id) && lastPoses.get(p.id) !== pose;
+    lastPoses.set(p.id, pose);
     const tileState = !p.alive ? "dead" : (!p.connected ? "disconnected" : "alive");
     const statusText = !p.alive ? "ĐÃ CHẾT" : (!p.connected ? "MẤT KẾT NỐI" : (s.status === "lobby" ? (p.ready ? "SẴN SÀNG" : "ĐANG CHỜ") : "CÒN SỐNG"));
-    return '<div class="player-tile ' + tileState + (p.canManage ? " managed" : "") + (p.isHost ? " is-host" : "") + '" data-player-id="' + esc(p.id) + '">' +
+    const dealCard = dealingCards ? '<div class="seat-card-back" aria-hidden="true"><span>☾</span></div>' : "";
+    return '<div class="player-tile ' + tileState + ' pose-' + pose + (poseChanged ? " pose-transition" : "") + (me && me.id === p.id ? " is-self" : "") + (p.canManage ? " managed" : "") + (p.isHost ? " is-host" : "") + '" data-player-id="' + esc(p.id) + '" style="--seat-x:' + x + '%;--seat-y:' + y + '%;--seat-delay:' + (i * 95) + 'ms">' +
+    dealCard +
     '<div class="tile-art avatar-tone-' + (i % 6) + '"><span class="tile-spark">✦</span><span class="tile-person">' + GENERIC_AVATAR + '</span><span class="tile-number">' + String(i + 1).padStart(2, "0") + '</span></div>' +
     '<div class="tile-name">' + esc(p.name) + '</div>' +
     (p.isHost ? '<span class="host-badge">♛ CHỦ PHÒNG</span>' : '') +
     '<span class="tile-status">' + (!p.alive ? "✕ " : (!p.connected ? "◌ " : (s.status === "lobby" && p.ready ? "✓ " : "● "))) + statusText + '</span>' +
-    (p.canManage ? '<div class="player-actions"><button class="player-action" data-transfer="' + p.id + '">Chuyển chủ</button><button class="player-action kick" data-kick="' + p.id + '">Kick</button></div>' : '') +
+    (p.canManage ? '<div class="player-actions"><button class="player-action" title="Chuyển chủ phòng" aria-label="Chuyển chủ phòng" data-transfer="' + p.id + '">⇧</button><button class="player-action kick" title="Kick người chơi" aria-label="Kick người chơi" data-kick="' + p.id + '">×</button></div>' : '') +
     (s.isRevealed ? '<span class="revealed-role">' + esc(p.role || "") + '</span>' : "") + '</div>';
   }).join("");
   $("players").querySelectorAll("[data-kick]").forEach(button => button.onclick = () => {
@@ -110,10 +139,10 @@ function render(s) {
     if (target && window.confirm("Chuyển quyền chủ phòng cho " + target.name + "?")) socket.emit("transferHost", { targetId: target.id });
   });
 
-  const me = s.self;
   $("selfStatus").textContent = me ? ("Bạn: " + me.name + (me.alive ? " · Còn sống" : " · Đã bị loại")) : "";
   $("roleCard").classList.toggle("hidden", !me || !me.role);
   if (me && me.role) renderRoleCard(me);
+  $("roleCard").classList.toggle("flipped", !!(me && me.roleRevealed));
   $("lobbyControls").classList.toggle("hidden", s.status !== "lobby");
   $("readyBtn").textContent = me && me.ready ? "Hủy sẵn sàng" : "Tôi đã sẵn sàng";
   $("startBtn").classList.toggle("hidden", !(me && me.isHost));
@@ -149,6 +178,7 @@ function renderRoleCard(me) {
   }
   const roleTeams = { wolf: "PHE MA SÓI", cupid: "ĐỘC LẬP / ĐÔI TÌNH NHÂN" };
   $("roleCard").dataset.role = me.role;
+  $("roleCard").classList.toggle("flipped", !!me.roleRevealed);
   $("roleArt").innerHTML = ROLE_ICONS[me.role] || '<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 12 72 48 108 60 72 72 60 108 48 72 12 60 48 48Z" fill="none" stroke="currentColor" stroke-width="3"/></svg>';
   $("roleTeam").textContent = roleTeams[me.role] || "PHE DÂN LÀNG";
   $("roleName").textContent = me.roleName;
@@ -203,6 +233,20 @@ function renderAction(s) {
   let html = "";
   if (s.phase === "lobby") {
     html = '<div class="empty-state">Chờ đủ người chơi và cùng sẵn sàng.<br><small>Chia sẻ mã phòng ' + esc(s.code) + ' cho bạn bè.</small></div>';
+  } else if (s.phase === "dealing") {
+    html = '<div class="deal-scene"><div class="deal-deck"><span>☾</span><span>✦</span><span>☽</span></div><h3>QUẢN TRÒ ĐANG CHIA BÀI</h3><p>Những lá bài bí mật đang được gửi đến từng vị trí quanh bàn.</p><div class="deal-progress"><i></i></div><small>' + s.playerCount + ' LÁ BÀI · KHÔNG AI ĐƯỢC XEM ROLE CỦA NGƯỜI KHÁC</small></div>';
+  } else if (s.phase === "roleReveal") {
+    if (!me || !me.roleRevealed) {
+      html = '<div class="role-reveal-prompt"><div class="face-down-card"><span>☾</span><b>?</b><small>THẺ NHÂN VẬT</small></div><h3>BẠN ĐÃ NHẬN ĐƯỢC MỘT LÁ BÀI</h3><p>Hãy lật thẻ để khám phá thân phận bí mật của mình.</p><button class="primary wide" id="flipRoleBtn">LẬT THẺ NHÂN VẬT</button></div>';
+    } else if (!me.roleSeen) {
+      html = '<div class="role-reveal-prompt"><h3>HÃY ĐỌC KỸ NĂNG CỦA BẠN</h3><p>Thẻ nhân vật của bạn đã được lật. Đọc hướng dẫn ở trên rồi xác nhận để bắt đầu ván chơi.</p><button class="primary wide" id="confirmRoleBtn">TÔI ĐÃ HIỂU ROLE</button></div>';
+    } else {
+      html = '<div class="empty-state">Bạn đã xác nhận role.<br><small>Đang chờ những người chơi còn lại xem bài...</small></div>';
+    }
+  } else if (s.phase === "nightIntro") {
+    html = '<div class="night-intro"><div class="night-moon">☾</div><h3>TRỜI ĐÃ TỐI</h3><p>Tất cả dân làng hãy cúi mặt xuống bàn và đi ngủ.</p></div>';
+  } else if (s.phase === "daybreak") {
+    html = '<div class="daybreak-intro"><div class="daybreak-sun">☼</div><h3>TRỜI ĐÃ SÁNG</h3><p>Dân làng từ từ thức dậy. Chuẩn bị nghe thông báo từ quản trò.</p></div>';
   } else if (s.phase === "discussion") {
     html = '<div class="action-prompt">Hãy thảo luận để tìm ra Ma sói. Khi đã sẵn sàng, bấm nút bên dưới để chuyển sang bỏ phiếu.</div>' +
       '<button class="primary wide" id="readyVoteBtn">Tôi đã sẵn sàng bỏ phiếu (' + s.voteReadyCount + ')</button>';
@@ -249,6 +293,10 @@ function renderAction(s) {
   }
 
   $("actionTitle").textContent =
+    s.phase === "dealing" ? "Quản trò chia bài" :
+    s.phase === "roleReveal" ? "Thẻ nhân vật của bạn" :
+    s.phase === "nightIntro" ? "Dân làng đi ngủ" :
+    s.phase === "daybreak" ? "Bình minh" :
     s.phase === "night" ? "Hành động bí mật" :
     s.phase === "vote" ? "Bỏ phiếu kín" :
     s.phase === "discussion" ? "Thảo luận" :
@@ -290,6 +338,10 @@ function renderAction(s) {
       socket.emit("replayGame");
     }
   };
+  const flipRole = $("flipRoleBtn");
+  if (flipRole) flipRole.onclick = () => { flipRole.disabled = true; socket.emit("revealRole"); };
+  const confirmRole = $("confirmRoleBtn");
+  if (confirmRole) confirmRole.onclick = () => { confirmRole.disabled = true; socket.emit("confirmRoleSeen"); };
   const ready = $("readyVoteBtn"); if (ready) ready.onclick = () => socket.emit("readyVote");
 }
 
@@ -302,6 +354,8 @@ function syncHostSettings(settings) {
   $("settingDiscussion").value = String(settings.discussionSeconds || 180);
   $("settingVote").value = String(settings.voteSeconds || 45);
   $("settingNight").value = String(settings.nightSeconds || 35);
+  $("settingDeal").value = String(settings.dealSeconds || 4);
+  $("settingRoleReveal").value = String(settings.roleRevealSeconds || 25);
   $("settingWolfCount").value = String(settings.wolfCount ?? 0);
   $("settingRoleMode").value = settings.customRoles ? "custom" : "auto";
   $("customRoleSettings").classList.toggle("hidden", !settings.customRoles);
@@ -319,6 +373,8 @@ $("saveHostSettingsBtn").onclick = () => {
     discussionSeconds: Number($("settingDiscussion").value),
     voteSeconds: Number($("settingVote").value),
     nightSeconds: Number($("settingNight").value),
+    dealSeconds: Number($("settingDeal").value),
+    roleRevealSeconds: Number($("settingRoleReveal").value),
     wolfCount: Number($("settingWolfCount").value),
     customRoles: $("settingRoleMode").value === "custom",
     enabledRoles
