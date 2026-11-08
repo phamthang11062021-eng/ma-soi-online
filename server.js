@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const path = require("path");
 const { Server } = require("socket.io");
 const { addHistoryEvent, visibleHistory } = require("./lib/history");
+const { attachGameCenter } = require("./lib/game-center");
 
 const app = express();
 const server = http.createServer(app);
@@ -13,6 +14,9 @@ const rooms = new Map();
 
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/health", (req, res) => res.json({ ok: true, rooms: rooms.size }));
+app.get("/werewolf", (req, res) => res.sendFile(path.join(__dirname, "public", "werewolf.html")));
+app.get("/uno", (req, res) => res.sendFile(path.join(__dirname, "public", "uno.html")));
+app.get("/property", (req, res) => res.sendFile(path.join(__dirname, "public", "property.html")));
 app.get("*", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
 
 const randomId = (n = 8) => crypto.randomBytes(n).toString("hex");
@@ -793,4 +797,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(PORT, () => console.log("Ma Soi Online running on port " + PORT));
+attachGameCenter(io);
+
+server.listen(PORT, () => console.log("Game Center running on port " + PORT));
