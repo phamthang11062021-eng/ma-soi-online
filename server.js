@@ -847,7 +847,7 @@ io.on("connection", (socket) => {
     if (room.players.length >= room.settings.maxPlayers) return sendError(socket, "Phòng đã đạt giới hạn số người do chủ phòng cài đặt.");
     if (room.players.some(p => p.name.toLowerCase() === name.toLowerCase())) return sendError(socket, "Tên này đã có trong phòng, hãy chọn tên khác.");
     const newToken = randomId(18);
-    player = { id: randomId(8), name, token: newToken, socketId: null, connected: true, ready: false, alive: true, role: null };
+    player = { id: randomId(8), name, token: newToken, socketId: null, connected: true, ready: false, alive: true, role: null, roleRevealed: false, roleSeen: false };
     room.players.push(player); attachPlayer(socket, room, player, newToken);
   });
   socket.on("ready", () => {
@@ -958,6 +958,9 @@ io.on("connection", (socket) => {
     room.currentHunterShot = null;
     room.afterDeathCallback = null;
     room.pendingDeathNames = [];
+    room.reserveRoles = []; room.wolfExtraAttack = false; room.enchantedPlayers = new Set();
+    room.knightUsed = new Set(); room.scapegoatPending = null;
+    room.noVoteNextVote = new Set(); room.voteExcluded = new Set();
     room.players.forEach(p => {
       p.role = null;
       p.roleRevealed = false;
@@ -1010,12 +1013,43 @@ io.on("connection", (socket) => {
     if (!room || room.phase !== "deathshot" || room.currentHunterShot !== (room.players.find(p => p.socketId === socket.id) || {}).id) return;
     resolveHunterShot(room, data && data.targetId); broadcast(room);
   });
+  socket.on("knightChallenge", (data) => {
+    const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
+    if (!room || room.status !== "playing" || room.phase !== "discussion") return;
+    const player = room.players.find(p => p.socketId === socket.id);
+    const target = getPlayer(room, data && data.targetId);
+    if (!player || !player.alive || player.role !== "knight" || room.knightUsed.has(player.id)) return sendError(socket, "Bạn không có quyền thách đấu hoặc đã dùng lượt này.");
+    if (!target || !target.alive || target.id === player.id) return sendError(socket, "Mục tiêu thách đấu không hợp lệ.");
+    room.knightUsed.add(player.id);
+    clearTimer(room);
+    const hit = isWolfTeam(target.role);
+    room.announcement = hit ? "Hiệp sĩ đã thách đấu đúng một kẻ thuộc phe Sói." : "Hiệp sĩ đã thách đấu nhầm và phải trả giá.";
+    addHistoryEvent(room, { message: hit ? "Hiệp sĩ thách đấu thành công." : "Hiệp sĩ thách đấu thất bại.", kind: "result" });
+    beginAfterDeaths(room, [hit ? target.id : player.id], "afterKnight");
+    broadcast(room);
+  });
+
+  socket.on("scapegoatChoice", (data) => {
+    const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
+    if (!room || room.status !== "playing" || room.phase !== "scapegoatChoice") return;
+    const player = room.players.find(p => p.socketId === socket.id);
+    const target = getPlayer(room, data && data.targetId);
+    if (!player || player.id !== room.scapegoatPending || !target || !target.alive || target.id === player.id) return sendError(socket, "Lựa chọn của Người thế thân không hợp lệ.");
+    room.noVoteNextVote.add(target.id);
+    room.privateNotes[target.id] = "Người thế thân đã chọn bạn không được bỏ phiếu ở lượt kế tiếp.";
+    addHistoryEvent(room, { message: "Người thế thân đã chọn một người mất quyền bỏ phiếu ở vòng kế tiếp.", kind: "result" });
+    addHistoryEvent(room, { message: "Bạn bị mất quyền bỏ phiếu ở lượt kế tiếp.", visibility: "private", playerIds: [target.id], kind: "private" });
+    room.scapegoatPending = null;
+    clearTimer(room);
+    finishVoteAfterDeaths(room);
+  });
+
   socket.on("vote", (data) => {
     const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
     if (!room || room.status !== "playing" || room.phase !== "vote") return;
     const p = room.players.find(x => x.socketId === socket.id);
     const target = getPlayer(room, data && data.targetId);
-    if (!p || !p.alive || !target || !target.alive || p.id === target.id) return sendError(socket, "Phiếu không hợp lệ.");
+    if (!p || !p.alive || room.voteExcluded.has(p.id) || !target || !target.alive || p.id === target.id) return sendError(socket, "Phiếu không hợp lệ hoặc bạn đang bị mất quyền bỏ phiếu ở vòng này.");
     if (room.votes[p.id]) return sendError(socket, "Bạn đã bỏ phiếu rồi.");
     room.votes[p.id] = target.id;
     if (alive(room).every(x => room.votes[x.id])) resolveVote(room); else broadcast(room);
