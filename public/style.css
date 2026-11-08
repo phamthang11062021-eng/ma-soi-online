@@ -150,7 +150,7 @@ body[data-phase="night"] .notice{border-color:#53627b;background:linear-gradient
 .action-panel>*{position:relative}
 .panel-heading{padding-bottom:14px}.panel-heading h3{font-size:15px}
 .players{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.player-tile{aspect-ratio:4/4.7;justify-content:space-between;padding:13px 9px 12px;border-color:#6e6048;background:linear-gradient(155deg,#34332f,#202a34 48%,#111923);box-shadow:inset 0 0 0 4px #d9b77909,0 9px 22px #0004;transition:transform .2s,border-color .2s,box-shadow .2s}
+.player-tile{aspect-ratio:1/1;justify-content:space-between;padding:13px 9px 12px;border-color:#6e6048;background:linear-gradient(155deg,#34332f,#202a34 48%,#111923);box-shadow:inset 0 0 0 4px #d9b77909,0 9px 22px #0004;transition:transform .2s,border-color .2s,box-shadow .2s}
 .player-tile:hover{transform:translateY(-3px);border-color:#b99b68;box-shadow:inset 0 0 0 4px #d9b77912,0 14px 28px #0005}
 .player-tile.is-host{border-color:#c3a36a;box-shadow:inset 0 0 0 1px #d9b7793b,0 0 24px #d9b77912}
 .tile-art{width:72%;max-width:112px;border-radius:22px;aspect-ratio:1;background:radial-gradient(circle at 50% 35%,#d9b77924,#131a24 70%);border:1px solid #b99b665e;box-shadow:0 0 0 6px #d9b77908,0 8px 18px #0003}
