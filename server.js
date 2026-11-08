@@ -704,6 +704,49 @@ function handleNightAction(socket, room, player, data) {
   if (!player || room.status !== "playing" || room.phase !== "night" || !player.alive) return;
   const sub = room.subphase;
   const target = getPlayer(room, data && data.targetId);
+  if (sub === "thief" && player.role === "thief") {
+    if (room.night.done[player.id]) return sendError(socket, "Bạn đã chọn role rồi.");
+    const chosen = String(data && data.targetId || "");
+    if (!room.reserveRoles.includes(chosen) || !ROLE_GUIDES[chosen]) return sendError(socket, "Lá bài dự phòng không hợp lệ.");
+    player.role = chosen;
+    room.privateNotes[player.id] = "Bạn đã đổi thành " + ROLE_GUIDES[chosen].name + ".";
+    room.reserveRoles = [];
+    addHistoryEvent(room, { message: "Bạn đã chọn lá bài dự phòng: " + ROLE_GUIDES[chosen].name + ".", visibility: "private", playerIds: [player.id], kind: "private" });
+    room.night.done[player.id] = true; advanceNight(room); return;
+  }
+  if (sub === "piper" && player.role === "pied-piper") {
+    if (room.night.done[player.id]) return sendError(socket, "Bạn đã mê hoặc trong đêm nay.");
+    const ids = Array.isArray(data.targetIds) ? [...new Set(data.targetIds)] : [];
+    const available = alive(room).filter(p => p.id !== player.id && !room.enchantedPlayers.has(p.id));
+    const required = Math.min(2, available.length);
+    if (ids.length !== required || ids.some(id => !available.some(p => p.id === id))) return sendError(socket, "Hãy chọn đúng số người còn sống chưa bị mê hoặc.");
+    ids.forEach(id => room.enchantedPlayers.add(id));
+    room.privateNotes[player.id] = "Bạn đã mê hoặc: " + ids.map(id => getPlayer(room, id).name).join(" và ") + ".";
+    addHistoryEvent(room, { message: room.privateNotes[player.id], visibility: "private", playerIds: [player.id], kind: "private" });
+    room.night.done[player.id] = true; advanceNight(room); return;
+  }
+  if (sub === "whiteWolf" && player.role === "white-wolf") {
+    if (room.night.done[player.id]) return sendError(socket, "Bạn đã hành động đêm nay.");
+    const otherPack = wolves(room).filter(p => p.id !== player.id);
+    const validTarget = target && target.alive && target.id !== player.id && (otherPack.length ? isWolfTeam(target.role) : !isWolfTeam(target.role));
+    if (!validTarget) return sendError(socket, "Mục tiêu của Sói trắng không hợp lệ.");
+    room.night.whiteWolfTarget = target.id; room.night.done[player.id] = true;
+    addHistoryEvent(room, { message: "Bạn đã chọn mục tiêu riêng trong đêm.", visibility: "private", playerIds: [player.id], kind: "private" });
+    advanceNight(room); return;
+  }
+  if (sub === "wolvesBonus" && isWolfTeam(player.role)) {
+    if (room.night.wolfBonusVotes[player.id]) return sendError(socket, "Bạn đã bỏ phiếu cho lượt tấn công bổ sung.");
+    if (!target || !target.alive || isWolfTeam(target.role) || target.id === room.night.wolfTarget) return sendError(socket, "Mục tiêu của lượt tấn công bổ sung không hợp lệ.");
+    room.night.wolfBonusVotes[player.id] = target.id;
+    const pack = wolves(room);
+    if (pack.every(p => room.night.wolfBonusVotes[p.id])) {
+      room.night.wolfBonusTarget = plurality(pack.map(p => room.night.wolfBonusVotes[p.id]));
+      room.wolfExtraAttack = false;
+      addHistoryEvent(room, { message: "Bầy sói đã chọn mục tiêu cho đòn tấn công bổ sung.", visibility: "private", playerIds: pack.map(p => p.id), kind: "private" });
+      advanceNight(room);
+    } else broadcast(room);
+    return;
+  }
   if (sub === "cupid" && player.role === "cupid") {
     if (room.night.done[player.id]) return sendError(socket, "Bạn đã ghép đôi rồi.");
     const ids = Array.isArray(data.targetIds) ? [...new Set(data.targetIds)] : [];
@@ -716,8 +759,8 @@ function handleNightAction(socket, room, player, data) {
     addHistoryEvent(room, { message: "Bạn đã ghép đôi " + a.name + " và " + b.name + ".", visibility: "private", playerIds: [player.id, a.id, b.id], kind: "private" });
     room.night.done[player.id] = true; advanceNight(room); return;
   }
-  if (sub === "wolves" && player.role === "wolf") {
-    if (!target || !target.alive || target.role === "wolf") return sendError(socket, "Hãy chọn một người còn sống không thuộc phe Ma sói.");
+  if (sub === "wolves" && isWolfTeam(player.role)) {
+    if (!target || !target.alive || isWolfTeam(target.role)) return sendError(socket, "Hãy chọn một người còn sống không thuộc phe Ma sói.");
     room.night.wolfVotes[player.id] = target.id;
     const livingWolves = wolves(room);
     if (livingWolves.every(p => room.night.wolfVotes[p.id])) {
@@ -743,7 +786,7 @@ function handleNightAction(socket, room, player, data) {
   }
   if (sub === "seer" && player.role === "seer") {
     if (!target || !target.alive || target.id === player.id) return sendError(socket, "Hãy chọn một người chơi khác còn sống.");
-    room.privateNotes[player.id] = target.name + (target.role === "wolf" ? " thuộc phe Ma sói." : " không thuộc phe Ma sói.");
+    room.privateNotes[player.id] = target.name + (isWolfTeam(target.role) ? " thuộc phe Ma sói." : " không thuộc phe Ma sói.");
     addHistoryEvent(room, { message: "Kết quả soi: " + room.privateNotes[player.id], visibility: "private", playerIds: [player.id], kind: "private" });
     room.night.done[player.id] = true; advanceNight(room); return;
   }
