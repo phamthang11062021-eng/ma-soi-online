@@ -157,7 +157,9 @@ function render(s) {
     s.phase === "night" ? "ĐÊM " + (s.day + 1) :
     s.phase === "discussion" ? "THẢO LUẬN · NGÀY " + s.day :
     s.phase === "vote" ? "BỎ PHIẾU · NGÀY " + s.day :
-    s.phase === "deathshot" ? "PHÁT SÚNG CUỐI CÙNG" : s.phase === "intermission" ? "KẾT QUẢ BỎ PHIẾU" : "KẾT THÚC";
+    s.phase === "deathshot" ? "PHÁT SÚNG CUỐI CÙNG" :
+    s.phase === "scapegoatChoice" ? "NGƯỜI THẾ THÂN ĐANG CHỌN" :
+    s.phase === "intermission" ? "KẾT QUẢ BỎ PHIẾU" : "KẾT THÚC";
   const me = s.self;
   const dealDuration = Math.max(2, Number(s.settings && s.settings.dealSeconds || 4));
   $("tableBoard").style.setProperty("--deal-duration", dealDuration + "s");
@@ -219,6 +221,7 @@ function render(s) {
   $("startBtn").classList.toggle("hidden", !(me && me.isHost));
   $("startBtn").disabled = !s.canStart;
   $("startBtn").style.opacity = s.canStart ? "1" : ".45";
+  $("startBtn").disabled = !s.canStart;
   const hostPlayer = s.players.find(p => p.isHost);
   $("hostHint").textContent = me && me.isHost
     ? "👑 Bạn là chủ phòng. Có thể bắt đầu, kick, chuyển quyền và cài đặt ván chơi."
@@ -234,8 +237,16 @@ function render(s) {
   renderHistory(s);
   renderAction(s);
   if (s.phase === "ended") {
+    const winnerLabels = {
+      town: "PHE DÂN THẮNG",
+      wolf: "PHE SÓI THẮNG",
+      lovers: "ĐÔI TÌNH NHÂN THẮNG",
+      angel: "THIÊN SỨ CHIẾN THẮNG",
+      "white-wolf": "SÓI TRẮNG CHIẾN THẮNG",
+      "pied-piper": "NGƯỜI THỔI SÁO CHIẾN THẮNG"
+    };
     $("actionTitle").textContent = "Ván chơi kết thúc";
-    $("timer").textContent = s.winner === "town" ? "PHE DÂN THẮNG" : s.winner === "wolf" ? "PHE SÓI THẮNG" : "ĐÔI TÌNH NHÂN THẮNG";
+    $("timer").textContent = winnerLabels[s.winner] || "VÁN CHƠI ĐÃ KẾT THÚC";
   }
 }
 
@@ -323,8 +334,12 @@ function renderAction(s) {
   } else if (s.phase === "daybreak") {
     html = '<div class="daybreak-intro"><div class="daybreak-sun">☼</div><h3>TRỜI ĐÃ SÁNG</h3><p>Dân làng từ từ thức dậy. Chuẩn bị nghe thông báo từ quản trò.</p></div>';
   } else if (s.phase === "discussion") {
-    html = '<div class="action-prompt">Hãy thảo luận để tìm ra Ma sói. Khi đã sẵn sàng, bấm nút bên dưới để chuyển sang bỏ phiếu.</div>' +
-      '<button class="primary wide" id="readyVoteBtn">Tôi đã sẵn sàng bỏ phiếu (' + s.voteReadyCount + ')</button>';
+    html = '<div class="action-prompt">Hãy thảo luận để tìm ra Ma sói. Khi đã sẵn sàng, bấm nút bên dưới để chuyển sang bỏ phiếu.</div>';
+    if (me && me.actionType === "knightChallenge") {
+      html += '<div class="action-prompt"><strong>Hiệp sĩ:</strong> Bạn có một lần thách đấu. Chọn người muốn thách đấu; nếu chọn nhầm phe, bạn sẽ bị loại.</div>' +
+        '<div class="target-grid">' + me.targets.map(t => '<button class="target" data-target="' + t.id + '">' + esc(t.name) + '</button>').join("") + '</div>';
+    }
+    html += '<button class="primary wide" id="readyVoteBtn">Tôi đã sẵn sàng bỏ phiếu (' + s.voteReadyCount + ')</button>';
   } else if (s.phase === "ended") {
     html = '<div class="empty-state">' + esc(s.announcement) + '<br><small>Vai trò của tất cả người chơi đã được công khai.</small></div>' +
       (me && me.isHost
@@ -382,7 +397,8 @@ function renderAction(s) {
     s.phase === "night" ? "Hành động bí mật" :
     s.phase === "vote" ? "Bỏ phiếu kín" :
     s.phase === "discussion" ? "Thảo luận" :
-    s.phase === "deathshot" ? "Phát súng cuối cùng" : "Diễn biến";
+    s.phase === "deathshot" ? "Phát súng cuối cùng" :
+    s.phase === "scapegoatChoice" ? "Người thế thân chọn mục tiêu" : "Diễn biến";
   $("actionArea").innerHTML = html;
 
   $("actionArea").querySelectorAll(".cupid-target").forEach(b => b.onclick = () => {

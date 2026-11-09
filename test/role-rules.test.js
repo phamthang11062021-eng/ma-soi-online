@@ -23,3 +23,24 @@ test("scapegoat selection ignores dead players", () => {
   assert.equal(chooseScapegoat(living).id, "b");
   assert.equal(chooseScapegoat([{id:"x",role:"villager",alive:true}]), null);
 });
+
+test("thief reserve cards respect the host's enabled custom roles", () => {
+  const { eligibleThiefReserveRoles } = require("../lib/role-rules");
+  const pool = eligibleThiefReserveRoles(
+    ["seer", "witch", "white-wolf", "wolf-cub", "thief", "scapegoat"],
+    ["thief", "seer"],
+    ["thief", "seer", "witch", "scapegoat"]
+  );
+  assert.deepEqual(pool, ["villager", "witch", "scapegoat"]);
+});
+test("excluded voters do not block automatic vote resolution", () => {
+  const { allEligibleVotersVoted } = require("../lib/role-rules");
+  const players = [
+    { id: "a", alive: true },
+    { id: "b", alive: true },
+    { id: "c", alive: true }
+  ];
+  assert.equal(allEligibleVotersVoted(players, { a: "b", b: "a" }, new Set(["c"])), true);
+  assert.equal(allEligibleVotersVoted(players, { a: "b" }, new Set(["c"])), false);
+  assert.equal(allEligibleVotersVoted(players, { a: "b", b: "a", c: "a" }, []), true);
+});

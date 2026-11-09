@@ -24,10 +24,11 @@ Repository có `render.yaml` để Render nhận diện cấu hình dịch vụ.
 
 ## Vai trò trong phiên bản hiện tại
 
-Có 11 role, mỗi người chỉ nhận hướng dẫn riêng cho role mình được chia:
+- **Chế độ tự động:** 11 role cơ bản được chia theo số người chơi.
+- **Chế độ tự chọn role:** có thể bật thêm 7 role mở rộng đã có logic: Kẻ trộm, Sói trắng, Sói con, Người thế thân, Người thổi sáo, Hiệp sĩ và Thiên sứ.
+- Mỗi người chỉ nhận hướng dẫn riêng cho role mình được chia; role của người khác được giữ kín đến khi ván kết thúc.
 
-- **Phe sói:** Ma sói.
-- **Phe dân:** Dân làng, Tiên tri, Phù thủy, Bảo vệ, Thợ săn, Thần tình yêu, Già làng, Cô bé, Thị trưởng, Thầy đồng.
+Các role cơ bản gồm Ma sói, Dân làng, Tiên tri, Phù thủy, Bảo vệ, Thợ săn, Thần tình yêu, Già làng, Cô bé, Thị trưởng và Thầy đồng.
 
 ### Kỹ năng đã triển khai
 
@@ -72,9 +73,10 @@ Người chơi có thể ẩn/mở phần hướng dẫn trong suốt ván. Role
 ## Thư viện nhân vật (nhánh phát triển Version 2.0)
 
 - Mở thư viện tại đường dẫn `/roles.html` hoặc chọn **Thư viện role** ở trang chủ.
-- 11 role hiện đang có trong game được đánh dấu **Đang trong game**.
-- 10 role ý tưởng được đánh dấu **Sắp phát triển / Chưa có logic**; các role này chỉ là bản xem trước, chưa được đưa vào thuật toán chia vai và không thể sử dụng trong ván.
+- 18 role đã có logic được đánh dấu **Đang trong game** hoặc **Có thể bật trong cài đặt**: gồm 11 role mặc định và 7 role mở rộng.
+- 3 ý tưởng Pháp sư, Nhà tiên tri giả và Cô hồn được đánh dấu **Sắp phát triển / Chưa có logic**; chưa được đưa vào thuật toán chia vai và không thể sử dụng trong ván.
 - Có tìm kiếm, lọc theo phe/trạng thái và thẻ nhân vật lật mặt trước/mặt sau.
+- Các role mở rộng chỉ xuất hiện khi chủ phòng bật trong mục **Cài đặt ván chơi → Tự chọn role**.
 - Giao diện thư viện tối ưu cho desktop và điện thoại.
 
 Lưu ý: thư viện nhân vật không thay đổi thuật toán chia role hiện tại. Các role mới chỉ được kích hoạt sau khi luật, thứ tự thức dậy, điều kiện thắng và tương tác với role cũ được thống nhất và kiểm thử.

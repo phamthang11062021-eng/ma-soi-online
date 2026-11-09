@@ -5,7 +5,7 @@ const path = require("path");
 const { Server } = require("socket.io");
 const { addHistoryEvent, visibleHistory } = require("./lib/history");
 const { playerPose, allConnectedPlayersConfirmed } = require("./lib/table-presentation");
-const { isWolfTeam, piperHasWon, angelWinsOnVote, chooseScapegoat } = require("./lib/role-rules");
+const { isWolfTeam, piperHasWon, angelWinsOnVote, chooseScapegoat, eligibleThiefReserveRoles, allEligibleVotersVoted } = require("./lib/role-rules");
 
 const app = express();
 const server = http.createServer(app);
@@ -200,9 +200,10 @@ function rolesFor(count, settings = {}) {
   const assigned = shuffle(roles);
   let reserveRoles = [];
   if (assigned.includes("thief")) {
-    const available = [...new Set(["villager", ...CONFIGURABLE_ROLES.filter(role =>
-      !assigned.includes(role) && !isWolfTeam(role) && role !== "thief"
-    )])];
+    const enabledForReserve = settings.customRoles && Array.isArray(settings.enabledRoles)
+      ? settings.enabledRoles
+      : CONFIGURABLE_ROLES;
+    const available = eligibleThiefReserveRoles(CONFIGURABLE_ROLES, assigned, enabledForReserve);
     reserveRoles = shuffle(available).slice(0, 2);
     while (reserveRoles.length < 2) reserveRoles.push("villager");
   }
@@ -383,7 +384,7 @@ function publicState(room, player) {
       loverName: !!me.roleRevealed && room.loverPair && room.loverPair.includes(me.id) ? ((getPlayer(room, room.loverPair.find(id => id !== me.id)) || {}).name || "") : "",
       mayorVoteWeight: !!me.roleRevealed && me.role === "mayor" && me.alive ? 2 : 1
     } : null,
-    canStart: !!player && player.id === room.hostId && room.status === "lobby" && room.players.length >= 5 && room.players.length <= room.settings.maxPlayers && (room.settings.wolfCount === 0 || room.settings.wolfCount <= room.players.length - 2) && room.players.every(p => p.ready),
+    canStart: !!player && player.id === room.hostId && room.status === "lobby" && room.players.length >= 5 && room.players.length <= room.settings.maxPlayers && (room.settings.wolfCount === 0 || room.settings.wolfCount <= room.players.length - 2) && room.players.every(p => p.connected && p.socketId && p.ready),
     voteReadyCount: room.voteReady.size,
     isRevealed: ended
   };
@@ -429,7 +430,7 @@ function joinPlayer(socket, room, player, token) {
 }
 function startGame(room, starterId) {
   if (starterId !== room.hostId) return false;
-  if (room.status !== "lobby" || room.players.length < 5 || room.players.length > room.settings.maxPlayers || !room.players.every(p => p.ready)) return false;
+  if (room.status !== "lobby" || room.players.length < 5 || room.players.length > room.settings.maxPlayers || !room.players.every(p => p.connected && p.socketId && p.ready)) return false;
   if (room.settings.wolfCount > 0 && room.settings.wolfCount > room.players.length - 2) return false;
   const deck = rolesFor(room.players.length, room.settings);
   room.reserveRoles = deck.reserveRoles;
@@ -866,7 +867,7 @@ io.on("connection", (socket) => {
     if (!room) return;
     const p = room.players.find(x => x.socketId === socket.id);
     if (!p || p.id !== room.hostId) return sendError(socket, "Chỉ chủ phòng mới có quyền bắt đầu ván chơi.");
-    if (!startGame(room, p.id)) return sendError(socket, "Cần ít nhất 5 người và tất cả người chơi phải sẵn sàng.");
+    if (!startGame(room, p.id)) return sendError(socket, "Cần ít nhất 5 người đang kết nối và tất cả phải sẵn sàng.");
     broadcast(room);
   });
 
@@ -1058,7 +1059,7 @@ io.on("connection", (socket) => {
     if (!p || !p.alive || room.voteExcluded.has(p.id) || !target || !target.alive || p.id === target.id) return sendError(socket, "Phiếu không hợp lệ hoặc bạn đang bị mất quyền bỏ phiếu ở vòng này.");
     if (room.votes[p.id]) return sendError(socket, "Bạn đã bỏ phiếu rồi.");
     room.votes[p.id] = target.id;
-    if (alive(room).every(x => room.votes[x.id])) resolveVote(room); else broadcast(room);
+    if (allEligibleVotersVoted(alive(room), room.votes, room.voteExcluded)) resolveVote(room); else broadcast(room);
   });
   socket.on("readyVote", () => {
     const room = [...rooms.values()].find(r => r.players.some(p => p.socketId === socket.id));
@@ -1095,7 +1096,7 @@ io.on("connection", (socket) => {
     if (!room) return;
     const p = room.players.find(x => x.socketId === socket.id);
     if (p) { p.connected = false; p.socketId = null; }
-    if (p && p.id === room.hostId && room.status === "lobby") {
+    if (p && p.id === room.hostId) {
       if (room.hostTransferTimer) clearTimeout(room.hostTransferTimer);
       room.hostTransferTimer = setTimeout(() => {
         room.hostTransferTimer = null;
@@ -1107,6 +1108,11 @@ io.on("connection", (socket) => {
           broadcast(room);
         }
       }, 15000);
+    }
+    if (room.status === "playing" && room.phase === "roleReveal" &&
+        room.players.some(player => player.connected) &&
+        allConnectedPlayersConfirmed(room.players)) {
+      completeRoleReveal(room, false);
     }
     broadcast(room);
   });
