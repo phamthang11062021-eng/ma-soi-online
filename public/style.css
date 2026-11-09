@@ -404,3 +404,9 @@ body[data-phase="nightIntro"] .ambient,body[data-phase="night"] .ambient{backgro
 @keyframes roleArtArrive{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.role-illustration{animation:none}}
 @media(max-width:700px){.role-art{max-width:250px}.role-illustration{width:min(100%,196px)}}
+
+/* Archive role cards: display illustrated 2D character portraits, not abstract role glyphs */
+.role-archive-card .role-art-frame,.archive-card .role-art-frame{aspect-ratio:1/1}
+.role-illustration.role-portrait{width:min(100%,240px);height:auto;filter:drop-shadow(0 9px 13px #0009)}
+.role-art-frame .role-art-icon{width:100%;height:100%;display:grid;place-items:center}
+.role-art-frame{background:radial-gradient(ellipse at 50% 38%,#594237 0,#28242a 53%,#141922 100%)}

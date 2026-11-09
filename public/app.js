@@ -30,17 +30,42 @@ knight:'<path d="M60 12 91 36v39L60 108 29 75V36Z" fill="url(#metal)" stroke="#f
 angel:'<path d="M60 41Q26 2 14 29q4 35 46 48 42-13 46-48Q94 2 60 41Z" fill="url(#metal)" stroke="#fff0ce" stroke-width="2.5"/><path d="M60 38v69m-14-8 14 8 14-8" fill="none" stroke="#fff4d7" stroke-width="3"/><ellipse cx="60" cy="27" rx="18" ry="7" fill="none" stroke="#f4dfa5" stroke-width="3"/><circle cx="60" cy="28" r="5" fill="#fff4d7"/>'
 };
 function roleIllustration(role) {
-  const palette = ROLE_PALETTES[role] || ROLE_PALETTES.villager;
-  const drawing = ROLE_DRAWINGS[role] || ROLE_DRAWINGS.villager;
-  const wolfDrawing = '<path d="M60 13 83 29 105 17 98 50Q109 79 86 99 73 110 60 112 47 110 34 99 11 79 22 50L15 17 37 29Z" fill="url(#metal)" stroke="#f6c5ae" stroke-width="2.4" stroke-linejoin="round"/><path d="m26 47 19 8 15-8 15 8 19-8-10 29-24 24-24-24Z" fill="#251923" stroke="#e9a0a0" stroke-width="1.5"/><path d="m35 59 14 5m36-5-14 5" stroke="#ffe1bd" stroke-width="4" stroke-linecap="round"/><path d="m51 77 9 5 9-5-9 15Z" fill="#f0b0a5"/><path d="M60 7v9m-4-5h8M60 104v9" stroke="#fff0cf" stroke-width="1.6" stroke-linecap="round"/>';
-  const frame = '<defs><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + palette[0] + '"/><stop offset=".52" stop-color="' + palette[1] + '"/><stop offset="1" stop-color="' + palette[2] + '"/></linearGradient><radialGradient id="halo"><stop offset="0" stop-color="' + palette[1] + '" stop-opacity=".72"/><stop offset="1" stop-color="' + palette[2] + '" stop-opacity="0"/></radialGradient></defs>';
-  return '<svg class="role-illustration" viewBox="0 0 160 160" role="img" aria-label="Minh họa ' + role + '" xmlns="http://www.w3.org/2000/svg">' + frame +
-    '<circle cx="80" cy="80" r="73" fill="url(#halo)"/><circle cx="80" cy="80" r="69" fill="none" stroke="' + palette[0] + '" stroke-opacity=".78" stroke-width="1.8"/><circle cx="80" cy="80" r="62" fill="none" stroke="' + palette[0] + '" stroke-opacity=".28" stroke-width=".8" stroke-dasharray="2 5"/>' +
-    '<path d="M80 5 86 15 80 21 74 15Z M80 139 86 145 80 155 74 145Z M5 80l10-6 6 6-6 6Z M139 80l10-6 6 6-6 6Z" fill="' + palette[0] + '" opacity=".9"/>' +
-    '<path d="M80 17 143 80 80 143 17 80Z" fill="none" stroke="' + palette[0] + '" stroke-opacity=".2" stroke-width="1"/>' +
-    '<g transform="translate(20 20) scale(1)">' + (role === "wolf" ? wolfDrawing : drawing) + '</g>' +
-    '<path d="M38 126q42 15 84 0" fill="none" stroke="' + palette[0] + '" stroke-opacity=".35" stroke-width="1.2"/>' +
-    '<circle cx="80" cy="9" r="2" fill="#fff1d1"/><circle cx="151" cy="80" r="2" fill="#fff1d1"/><circle cx="80" cy="151" r="2" fill="#fff1d1"/><circle cx="9" cy="80" r="2" fill="#fff1d1"/></svg>';
+  const p = ROLE_PALETTES[role] || ROLE_PALETTES.villager;
+  const accents = {
+    wolf:'<path d="M48 56 34 20 66 39Q80 30 94 39L126 20 112 57" fill="#25202a" stroke="#e9a0a0" stroke-width="4" stroke-linejoin="round"/><path d="M49 69 60 74m40-5L89 74" stroke="#ffe1bd" stroke-width="4" stroke-linecap="round"/><path d="M70 88 80 94 90 88 80 105Z" fill="#e99b9e"/>',
+    villager:'<path d="M44 50 80 18 116 50" fill="none" stroke="#e8c995" stroke-width="8" stroke-linecap="round"/><path d="M54 43v-8q26-18 52 0v8" fill="#8a6847"/>',
+    seer:'<path d="M43 62Q27 15 80 12q53 3 37 50L104 45 80 35 56 45Z" fill="#34264c" stroke="#c3b0ff" stroke-width="3"/><circle cx="80" cy="22" r="7" fill="#e7d8ff"/>',
+    witch:'<path d="M40 42 79 4 124 43 96 36 78 30 58 38Z" fill="#372442" stroke="#d7a7e5" stroke-width="3"/><path d="M49 44q30-13 61 0" stroke="#d7a7e5" stroke-width="5" fill="none"/>',
+    protector:'<path d="M42 55 43 31 80 12 117 31 118 55 102 45 80 38 58 45Z" fill="#536f8a" stroke="#d4e7f7" stroke-width="3"/><path d="M80 16v27m-16-14h32" stroke="#f4dfb4" stroke-width="3"/>',
+    hunter:'<path d="M34 48q46-33 92 0l-8 9H42Z" fill="#76502e" stroke="#e8bd87" stroke-width="3"/><path d="M80 20v20" stroke="#e8bd87" stroke-width="3"/>',
+    cupid:'<path d="M48 47Q15 11 23 54q7 24 36 26M112 47q33-36 25 7-7 24-36 26" fill="none" stroke="#f2bfd3" stroke-width="8" stroke-linecap="round"/><path d="M80 17v14m-7-7h14" stroke="#ffe2bd" stroke-width="3"/>',
+    elder:'<path d="M48 68q-18 27 2 42 30 22 60 0 20-15 2-42l-12 15-12-7-8 12-8-12-12 7Z" fill="#ded0b9" stroke="#a58d6e" stroke-width="2"/><path d="M48 42q32-26 64 0" stroke="#d9c19a" stroke-width="8" fill="none"/>',
+    littleGirl:'<path d="M43 44Q27 8 60 23L80 10 100 23Q133 8 117 44" fill="#35485e" stroke="#c4d7e5" stroke-width="3"/><path d="M80 13q-18-18-27 0 9 16 27 13 18 3 27-13-9-18-27 0Z" fill="#b6cce0"/>',
+    mayor:'<path d="m39 45 10-29 22 20 9-31 10 31 22-20 10 29Z" fill="#a98645" stroke="#f3d89c" stroke-width="3"/><circle cx="80" cy="12" r="5" fill="#fff0bd"/>',
+    medium:'<path d="M42 52Q28 5 80 7q52-2 38 45L99 39 80 32 61 39Z" fill="#3d4960" stroke="#d6e0f1" stroke-width="3"/><path d="M80 9v18m-8-9h16" stroke="#fff0c8" stroke-width="3"/>',
+    thief:'<path d="M35 43q45-40 90 0l-10 12H45Z" fill="#3c3039" stroke="#e7c4c5" stroke-width="3"/><path d="M48 61q32-13 64 0l-5 18H53Z" fill="#211b25" stroke="#d7a9ad" stroke-width="2"/>',
+    "white-wolf":'<path d="M47 57 32 13 66 37Q80 28 94 37l34-24-15 44" fill="#dce7ed" stroke="#f3fbff" stroke-width="4"/><path d="M65 20 80 4 95 20" fill="none" stroke="#c9e2f3" stroke-width="3"/>',
+    "wolf-cub":'<path d="M49 55 42 25 68 40Q80 33 92 40l26-15-7 31" fill="#9b6458" stroke="#efc0a9" stroke-width="4"/><circle cx="80" cy="24" r="5" fill="#ffe3a8"/>',
+    scapegoat:'<path d="M80 9 91 31l25 4-18 18 5 25-23-12-23 12 5-25L44 35l25-4Z" fill="#8a7468" stroke="#e6d4c8" stroke-width="3"/>',
+    "pied-piper":'<path d="M41 33 112 55l-5 10-70-22Z" fill="#7ca99b" stroke="#d1f0df" stroke-width="3"/><path d="m60 39 3 16m15-11 3 16m15-11 3 16" stroke="#28453f" stroke-width="2"/>',
+    knight:'<path d="M47 51V29L80 10l33 19v22l-13-8H60Z" fill="#a18a5a" stroke="#f0dfb6" stroke-width="3"/><path d="M80 12v35m-15-17h30" stroke="#fff0ca" stroke-width="3"/>',
+    angel:'<path d="M50 48Q8 3 18 56q7 22 44 27M110 48q42-45 32 8-7 22-44 27" fill="#d9d0b3" stroke="#fff0ce" stroke-width="3"/><ellipse cx="80" cy="15" rx="23" ry="7" fill="none" stroke="#f4dfa5" stroke-width="4"/>'
+  };
+  const isWolf = role === "wolf" || role === "white-wolf" || role === "wolf-cub";
+  const face = isWolf
+    ? '<path d="M53 48 62 41 80 46 98 41 107 48 104 88Q96 111 80 117 64 111 56 88Z" fill="#6b5554" stroke="#e8c4b1" stroke-width="2.5"/><path d="M65 77 73 80m22-3-8 3" stroke="#ffe2bd" stroke-width="4" stroke-linecap="round"/><path d="M74 91 80 95 86 91 80 103Z" fill="#eaa4a2"/>'
+    : '<path d="M55 50Q80 31 105 50L102 88Q96 111 80 115 64 111 58 88Z" fill="#d9a27e" stroke="#f0c4a2" stroke-width="2"/><path d="M67 77h2m22 0h2" stroke="#34272a" stroke-width="3.5" stroke-linecap="round"/><path d="M73 96q7 6 14 0" fill="none" stroke="#874f4d" stroke-width="2.5" stroke-linecap="round"/>';
+  const hair = isWolf ? '' : '<path d="M53 62Q45 25 80 25q35 0 27 37l-8-13-10 5-9-8-13 9-9-4Z" fill="#342b2c" stroke="#1b1920" stroke-width="2"/>';
+  const cloak = '<path d="M31 155Q33 110 58 106L80 117 102 106Q127 110 129 155Z" fill="url(#robe)" stroke="' + p[0] + '" stroke-width="3"/><path d="m80 119-12 36m12-36 12 36" stroke="' + p[0] + '" stroke-opacity=".55" stroke-width="2"/><path d="M67 119 80 132 93 119" fill="none" stroke="#f0d5a0" stroke-width="2"/>';
+  const defs = '<defs><linearGradient id="robe" x1="0" y1="0" x2="1" y2="1"><stop stop-color="' + p[0] + '"/><stop offset=".55" stop-color="' + p[1] + '"/><stop offset="1" stop-color="' + p[2] + '"/></linearGradient><radialGradient id="portraitHalo"><stop stop-color="' + p[1] + '" stop-opacity=".55"/><stop offset="1" stop-color="' + p[2] + '" stop-opacity="0"/></radialGradient></defs>';
+  return '<svg class="role-illustration role-portrait" viewBox="0 0 160 160" role="img" aria-label="Minh họa nhân vật role" xmlns="http://www.w3.org/2000/svg">' + defs +
+    '<circle cx="80" cy="80" r="75" fill="url(#portraitHalo)"/><circle cx="80" cy="80" r="70" fill="none" stroke="' + p[0] + '" stroke-opacity=".6" stroke-width="1.5"/>' +
+    '<g>' + cloak + '<path d="M48 69Q42 26 80 24q38 2 32 45l-8 17H56Z" fill="#33272b" opacity=".35"/>' +
+    (accents[role] || accents.villager) + hair + face +
+    '<path d="M56 65q-9-9-9 3m57-3q9-9 9 3" fill="none" stroke="#b77e68" stroke-width="4"/>' +
+    '<path d="M80 86v6" stroke="#9c6558" stroke-width="2" stroke-linecap="round"/>' +
+    '<path d="M61 119q19 11 38 0" fill="none" stroke="' + p[0] + '" stroke-width="2"/>' +
+    '</g><path d="M17 80h8m110 0h8M80 7v8m0 130v8" stroke="' + p[0] + '" stroke-opacity=".65" stroke-width="1.5"/></svg>';
 }
 const GENERIC_AVATAR = '<span class="avatar-3d" aria-hidden="true"><span class="avatar-shadow"></span><span class="avatar-legs"><i></i><i></i></span><span class="avatar-body"><i class="avatar-arm left"></i><i class="avatar-arm right"></i><i class="avatar-coat"></i></span><span class="avatar-neck"></span><span class="avatar-head"><i class="avatar-ear left"></i><i class="avatar-ear right"></i><i class="avatar-hair"></i><i class="avatar-eye left"></i><i class="avatar-eye right"></i><i class="avatar-nose"></i><i class="avatar-mouth"></i></span></span>';
 
