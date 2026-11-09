@@ -46,55 +46,112 @@ const GENERIC_AVATAR='<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
-function roleIconSvg(id) {
+function rolePortraitSvg(id) {
   const palettes = {
-    wolf:["#d88a8f","#683640","#251b27"],villager:["#c8aa79","#76583b","#29211e"],
-    seer:["#b9a7eb","#58477f","#241d39"],witch:["#c6a0df","#684477","#261b30"],
-    protector:["#b7cce0","#526b87","#1b2a3b"],hunter:["#d7aa79","#76502f","#2b2019"],
-    cupid:["#e9a7bd","#914b70","#321d31"],elder:["#d1c0a0","#746044","#2b241e"],
-    littleGirl:["#b4cedd","#607d96","#202b39"],mayor:["#e4c783","#8a6836","#30251c"],
+    wolf:["#d7a09a","#6e3c43","#211a25"],villager:["#d5b27d","#77563c","#2a211e"],
+    seer:["#b9a9e9","#58477f","#201b35"],witch:["#c49bd7","#694274","#25192d"],
+    protector:["#b7cbdc","#536e88","#192a3b"],hunter:["#d7a36e","#79502f","#281d18"],
+    cupid:["#e7a5b8","#8d4c70","#2e1a30"],elder:["#d1c0a0","#78664f","#29221e"],
+    littleGirl:["#b5cddd","#607d96","#202a39"],mayor:["#e4c783","#8a6836","#30251c"],
     medium:["#c3cce1","#66728e","#222638"],thief:["#d0b0a6","#60454c","#241c25"],
     "white-wolf":["#e4edf3","#8497a8","#27313d"],"wolf-cub":["#d9a18b","#84534b","#2b2025"],
-    scapegoat:["#cbb9aa","#78665a","#2b2422"],"pied-piper":["#a9d0c2","#4e8176","#1c302e"],
-    knight:["#d8c99d","#81704c","#292820"],angel:["#eee2b8","#9b8958","#302b20"],
-    sorcerer:["#c2a4dc","#62457b","#251a31"],"false-seer":["#c2a8e0","#56436f","#211a30"],
-    ghost:["#c2d5e4","#637b94","#1b2632"]
+    "pied-piper":["#a9d0c2","#4e8176","#1c302e"],knight:["#d8c99d","#81704c","#292820"],
+    angel:["#eee2b8","#9b8958","#302b20"],sorcerer:["#c2a4dc","#62457b","#251a31"],
+    "false-seer":["#c2a8e0","#56436f","#211a30"],ghost:["#c2d5e4","#637b94","#1b2632"]
   };
   const p=palettes[id]||palettes.villager;
+  const sid=String(id).replace(/[^a-z0-9-]/gi,"");
   const wolf=["wolf","white-wolf","wolf-cub"].includes(id);
-  const gradients='<defs><linearGradient id="robe-'+id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+p[0]+'"/><stop offset=".55" stop-color="'+p[1]+'"/><stop offset="1" stop-color="'+p[2]+'"/></linearGradient><radialGradient id="halo-'+id+'"><stop stop-color="'+p[0]+'" stop-opacity=".42"/><stop offset="1" stop-color="'+p[2]+'" stop-opacity="0"/></radialGradient></defs>';
-  const outfit='<path d="M23 158Q27 111 53 105L80 119 107 105Q133 111 137 158Z" fill="url(#robe-'+id+')" stroke="'+p[0]+'" stroke-width="3"/><path d="m80 120-13 38m13-38 13 38" stroke="#f0d8aa" stroke-opacity=".55" stroke-width="2"/>';
-  const face=wolf
-    ? '<path d="M54 48 43 23 67 39Q80 32 93 39L117 23 106 53Q116 88 80 112 44 88 54 48Z" fill="url(#robe-'+id+')" stroke="#e9c6b7" stroke-width="2.5"/><path d="m59 72 13 5m36-5-13 5" stroke="#fff0d8" stroke-width="4" stroke-linecap="round"/><path d="m71 89 9 6 9-6-9 14Z" fill="#e8a0a1"/>'
-    : '<path d="M53 49Q80 25 107 49L103 88Q96 111 80 115 64 111 57 88Z" fill="#dba783" stroke="#f2c7a4" stroke-width="2"/><path d="M64 77h3m26 0h3" stroke="#34272a" stroke-width="3.5" stroke-linecap="round"/><path d="M72 96q8 6 16 0" fill="none" stroke="#874f4d" stroke-width="2.5" stroke-linecap="round"/>';
-  const hair=wolf?'':'<path d="M52 64Q44 24 80 24q36 0 28 40l-9-13-10 5-9-8-13 9-9-4Z" fill="#33282a" stroke="#1d1920" stroke-width="2"/>';
-  const costume={
-    seer:'<path d="M42 53 80 9 118 53 100 45 80 34 60 45Z" fill="#392b50" stroke="#d2b9f4" stroke-width="3"/><circle cx="80" cy="27" r="6" fill="#eee0ff"/>',
-    witch:'<path d="M38 48 80 4 124 48 96 38 80 30 60 40Z" fill="#382342" stroke="#d7a7e5" stroke-width="3"/>',
-    protector:'<path d="M44 49 46 29 80 10 114 29 116 49 98 42 80 36 62 42Z" fill="#536f8a" stroke="#d4e7f7" stroke-width="3"/><path d="M80 17v24m-12-12h24" stroke="#f4dfb4" stroke-width="3"/>',
-    hunter:'<path d="M37 49q43-34 86 0l-8 9H45Z" fill="#76502e" stroke="#e8bd87" stroke-width="3"/><path d="M80 20v20" stroke="#e8bd87" stroke-width="3"/>',
-    elder:'<path d="M47 61q-9-40 33-43 42 3 33 43l-12 17H59Z" fill="#d9c7a7" stroke="#a58d6e" stroke-width="2"/><path d="M59 78q21 18 42 0" fill="none" stroke="#f4ead8" stroke-width="5"/>',
-    littleGirl:'<path d="M44 48Q27 8 60 24L80 10 100 24Q133 8 116 48" fill="#35485e" stroke="#c4d7e5" stroke-width="3"/>',
-    mayor:'<path d="m39 48 10-30 22 20 9-31 10 31 22-20 10 30Z" fill="#a98645" stroke="#f3d89c" stroke-width="3"/>',
-    medium:'<path d="M42 53Q28 7 80 7q52 0 38 46L99 40 80 32 61 40Z" fill="#3d4960" stroke="#d6e0f1" stroke-width="3"/>',
-    thief:'<path d="M35 48q45-41 90 0l-10 12H45Z" fill="#3c3039" stroke="#e7c4c5" stroke-width="3"/><path d="M52 63h56l-5 19H57Z" fill="#211b25"/>',
-    knight:'<path d="M45 53V29L80 9l35 20v24l-15-9H60Z" fill="#8b805f" stroke="#f0dfb6" stroke-width="3"/><path d="M80 12v38m-15-20h30" stroke="#fff0ca" stroke-width="3"/>',
-    angel:'<path d="M52 51Q8 3 18 57q7 24 47 34M108 51q44-48 34 6-7 24-47 34" fill="none" stroke="#fff0ce" stroke-width="7"/><ellipse cx="80" cy="18" rx="23" ry="7" fill="none" stroke="#f4dfa5" stroke-width="4"/>',
-    cupid:'<path d="M80 35Q42-3 25 34q-9 31 55 62 64-31 55-62Q118-3 80 35Z" fill="none" stroke="#f2bfd3" stroke-width="7"/>',
-    "white-wolf":'<path d="M51 48 36 12 68 36Q80 29 92 36l32-24-15 39" fill="#dce7ed" stroke="#f3fbff" stroke-width="3"/>',
-    "wolf-cub":'<path d="M54 48 45 20 68 37Q80 31 92 37l23-17-9 31" fill="#9b6458" stroke="#efc0a9" stroke-width="3"/>',
-    "pied-piper":'<path d="M47 50 111 68l-4 10-65-20Z" fill="#7ca99b" stroke="#d1f0df" stroke-width="3"/>',
-    scapegoat:'<path d="M80 8 93 33l28 4-20 20 5 29-26-14-26 14 5-29-20-20 28-4Z" fill="#8a7468" stroke="#e6d4c8" stroke-width="3"/>',
-    sorcerer:'<path d="M42 50 80 5 118 50 99 41 80 32 61 41Z" fill="#39264d" stroke="#d7b8f4" stroke-width="3"/><path d="M80 11v20m-8-10h16" stroke="#f3e3ff" stroke-width="3"/>',
-    "false-seer":'<path d="M42 53Q80 5 118 53L98 45 80 36 62 45Z" fill="#39264d" stroke="#d7b8f4" stroke-width="3"/><path d="M67 76h26" stroke="#e3d0ff" stroke-width="3"/>',
-    ghost:'<path d="M51 47Q51 20 80 20t29 27v61l-14-9-15 9-15-9-14 9Z" fill="#bdcedd" fill-opacity=".75" stroke="#e5f3ff" stroke-width="3"/>'
+  const hairColor= id==="elder" ? "#e5dfd0" : id==="littleGirl" ? "#a36d4c" : id==="seer"||id==="witch"||id==="sorcerer" ? "#211c2a" : "#3a2928";
+  const headwear={
+    villager:'<path d="M69 92Q49 63 59 48Q81 28 143 48Q163 61 150 91L137 82 80 82Z" fill="#8c6843" stroke="#e1c18b" stroke-width="4"/><path d="M52 87Q109 70 162 88" fill="none" stroke="#d8b87c" stroke-width="8"/>',
+    seer:'<path d="M68 107Q39 45 92 31Q143 16 170 70L154 111 143 87 127 75 110 87 94 74 78 93Z" fill="#332843" stroke="#c7b4ee" stroke-width="4"/><path d="M80 59Q116 36 148 63" fill="none" stroke="#8e7ab7" stroke-width="4"/>',
+    witch:'<path d="M57 87 104 7 177 85 137 72 108 65 81 78Z" fill="#30213a" stroke="#d8b2e8" stroke-width="4"/><path d="M70 87Q116 68 165 89" fill="none" stroke="#b58acb" stroke-width="8"/><circle cx="108" cy="57" r="7" fill="#e4c4f2"/>',
+    protector:'<path d="M65 94V56L111 25 157 56V94L139 82 111 72 83 82Z" fill="#536b82" stroke="#d9e6ee" stroke-width="4"/><path d="M111 33V77M91 55h40" stroke="#f0dcb0" stroke-width="4"/>',
+    hunter:'<path d="M60 99Q47 48 111 29Q168 41 161 99L144 83 112 71 81 86Z" fill="#514032" stroke="#d7b17b" stroke-width="4"/><path d="M72 87Q112 68 151 88" fill="none" stroke="#b88b57" stroke-width="5"/>',
+    cupid:'<path d="M72 74Q48 34 79 39Q94 40 111 61Q128 39 144 39Q175 37 149 76" fill="none" stroke="#f1d4dc" stroke-width="7"/><circle cx="111" cy="44" r="7" fill="#e9b5c6"/>',
+    elder:'<path d="M64 100Q46 42 111 34Q175 42 158 101L143 84 111 74 79 87Z" fill="#c9c2b3" stroke="#eee6d5" stroke-width="4"/><path d="M77 63Q111 46 145 63" fill="none" stroke="#f5efe2" stroke-width="5"/>',
+    littleGirl:'<path d="M61 116Q33 43 89 30L111 18 134 30Q188 42 160 116L145 96 111 83 77 98Z" fill="#354a60" stroke="#c9dce9" stroke-width="4"/><path d="M84 37Q111 8 140 37" fill="none" stroke="#b8d1e2" stroke-width="5"/>',
+    mayor:'<path d="m65 88 10-43 24 27 12-48 13 48 24-27 10 43Z" fill="#a57d3c" stroke="#f4dc9e" stroke-width="4"/><circle cx="111" cy="28" r="8" fill="#fff0bc"/>',
+    medium:'<path d="M61 105Q39 42 91 28Q145 13 164 80L145 101 133 78 111 66 88 82 73 99Z" fill="#3b465b" stroke="#d9e0ee" stroke-width="4"/><path d="M85 53Q111 36 139 53" fill="none" stroke="#aebbd0" stroke-width="5"/>',
+    thief:'<path d="M57 92Q48 42 111 27Q174 42 165 92L145 80 111 71 78 82Z" fill="#27242d" stroke="#bda6a2" stroke-width="4"/><path d="M73 106Q111 89 149 106L142 126H80Z" fill="#302b34" stroke="#bda6a2" stroke-width="3"/>',
+    "white-wolf":'<path d="M64 107 47 36 92 75Q111 60 130 75L175 36 158 108" fill="#dce9f0" stroke="#f6fbff" stroke-width="4"/><path d="M83 66 111 48 140 66" fill="none" stroke="#a7bfce" stroke-width="5"/>',
+    "wolf-cub":'<path d="M70 103 58 45 95 78Q111 66 127 78L164 45 152 103" fill="#9a645a" stroke="#efc4ad" stroke-width="4"/><path d="M88 72 111 57 135 72" fill="none" stroke="#d79a87" stroke-width="4"/>',
+    "pied-piper":'<path d="M61 89Q57 46 111 30Q162 42 161 90L145 78 111 67 80 80Z" fill="#436d64" stroke="#b4d7c7" stroke-width="4"/><path d="m132 39 24-18 7 31" fill="#a8cdbb" stroke="#d8eee0" stroke-width="3"/>',
+    knight:'<path d="M64 107V54L111 22 158 54V107L139 88 111 78 83 88Z" fill="#737b82" stroke="#e1d7c1" stroke-width="4"/><path d="M111 30V87M85 58h52" stroke="#f1dfb9" stroke-width="5"/><path d="M90 94h42" stroke="#303b48" stroke-width="5"/>',
+    angel:'<ellipse cx="111" cy="35" rx="39" ry="10" fill="none" stroke="#f3dfa7" stroke-width="5"/><path d="M66 105Q24 48 49 40Q73 35 95 92M156 105Q198 48 173 40Q149 35 127 92" fill="none" stroke="#f6edda" stroke-width="9"/>',
+    sorcerer:'<path d="M58 93 111 7 173 93 143 78 111 65 79 82Z" fill="#33243e" stroke="#d8b8ed" stroke-width="4"/><path d="M111 19V59M97 39h28" stroke="#f2ddff" stroke-width="4"/>',
+    "false-seer":'<path d="M66 98Q42 43 111 29Q177 43 156 98L140 81 111 70 82 83Z" fill="#34283f" stroke="#c6b0e5" stroke-width="4"/><path d="M70 116Q111 96 152 116" fill="none" stroke="#dfc8f1" stroke-width="10"/>',
+    ghost:'<path d="M65 114Q53 34 111 25Q170 34 158 114L145 101 128 112 111 101 94 112 77 101Z" fill="#b9d0df" fill-opacity=".7" stroke="#e6f3fb" stroke-width="4"/>'
   };
-  const emblem=costume[id]||'<path d="M58 120v25m-12-9 12 9 12-9" stroke="'+p[0]+'" stroke-width="3" fill="none"/>';
-  return '<svg viewBox="0 0 160 160" role="img" aria-label="Tranh minh họa '+id+'" xmlns="http://www.w3.org/2000/svg">'+gradients+
-    '<circle cx="80" cy="80" r="77" fill="url(#halo-'+id+')"/><circle cx="80" cy="80" r="72" fill="none" stroke="'+p[0]+'" stroke-opacity=".5" stroke-width="1.5"/>'+
-    outfit+emblem+hair+face+
-    '<path d="M55 67q-9-9-10 3m60-3q9-9 10 3" fill="none" stroke="#b77e68" stroke-width="4"/>'+
-    '<path d="M80 88v6" stroke="#9c6558" stroke-width="2" stroke-linecap="round"/></svg>';
+  const props={
+    seer:'<circle cx="190" cy="207" r="30" fill="#a58ce5" fill-opacity=".25" stroke="#d9c8ff" stroke-width="3"/><circle cx="190" cy="207" r="15" fill="#d8c8ff" fill-opacity=".65"/><path d="M190 166v-12m0 94v-12m-41-29h-12m94 0h-12" stroke="#d9c8ff" stroke-width="3"/>',
+    witch:'<path d="M182 188h30l-4 60q-12 15-24 0Z" fill="#6e4a83" stroke="#e3c5f0" stroke-width="3"/><path d="M182 209h30" stroke="#d5a8e6" stroke-width="5"/><circle cx="197" cy="224" r="7" fill="#a9dfbb"/>',
+    protector:'<path d="M47 179 78 191 74 246Q62 265 47 274 30 262 20 246L16 191Z" fill="#496783" stroke="#d9e6ed" stroke-width="4"/><path d="M47 199v54m-20-28h40" stroke="#e8d8b5" stroke-width="4"/>',
+    hunter:'<path d="M209 98Q253 161 207 234" fill="none" stroke="#d6ae78" stroke-width="5"/><path d="M208 98 177 165 208 234" fill="none" stroke="#f0d3a2" stroke-width="2"/><path d="M174 165h54" stroke="#e4c38e" stroke-width="3"/>',
+    cupid:'<path d="M44 185Q14 157 25 202Q37 234 76 242M44 185Q14 213 25 168" fill="none" stroke="#efb9ca" stroke-width="5"/><path d="M27 183h55m-14-13 14 13-14 13" stroke="#fff0d7" stroke-width="3" fill="none"/>',
+    medium:'<path d="M187 182h31l-4 67q-12 14-24 0Z" fill="#7d6b4e" stroke="#e5d4aa" stroke-width="3"/><path d="M188 206h29" stroke="#f0d18b" stroke-width="4"/><path d="M202 170v-12" stroke="#e9d7b3" stroke-width="3"/>',
+    thief:'<path d="m196 179 28 70m-36-59 45-18" stroke="#d9d2ca" stroke-width="4" stroke-linecap="round"/><path d="m224 249 10 8-14-1Z" fill="#d9d2ca"/>',
+    "pied-piper":'<path d="M174 197 235 181 237 190 176 206Z" fill="#b4d6c7" stroke="#e4f3e9" stroke-width="2"/><path d="m190 193 2 8m14-12 2 8m13-12 2 8" stroke="#456a60" stroke-width="2"/>',
+    knight:'<path d="M44 180 77 190 73 246Q61 264 44 275 27 263 16 246L12 190Z" fill="#687d8d" stroke="#e7dfc9" stroke-width="4"/><path d="M44 201v54m-19-27h38" stroke="#f1dfb9" stroke-width="4"/>',
+    angel:'<path d="M80 193Q28 160 27 216Q37 253 87 250M142 193Q194 160 195 216Q185 253 135 250" fill="none" stroke="#f4e9cf" stroke-width="9"/>',
+    sorcerer:'<path d="M204 103v151m-18-126 18-28 18 28" stroke="#d6c2ef" stroke-width="5" fill="none"/><circle cx="204" cy="95" r="13" fill="#c9a6ed" stroke="#f0dcff" stroke-width="3"/>',
+    ghost:'<path d="M36 208q24-27 48 0t48 0 48 0" fill="none" stroke="#e4f3fa" stroke-opacity=".7" stroke-width="4"/>'
+  };
+  const faceWolf=wolf
+    ? '<path d="M88 106 70 75 99 87Q111 78 123 87L152 75 134 110Q147 151 111 173 75 151 88 106Z" fill="url(#skin-'+sid+')" stroke="'+p[0]+'" stroke-width="3"/><path d="M96 125l9 4m31-4-9 4" stroke="#fff0d8" stroke-width="4" stroke-linecap="round"/><path d="M105 143q6-6 12 0l-6 8Z" fill="#34232a"/><path d="M102 156q9 8 18 0" stroke="#f2c4b7" stroke-width="3" fill="none"/>'
+    : '<path d="M88 111Q88 68 111 67Q153 66 153 111L148 151Q140 178 111 181Q82 178 74 151Z" fill="url(#skin-'+sid+')" stroke="#f0c5a4" stroke-width="2.5"/><path d="M91 128h8m25 0h8" stroke="#30242a" stroke-width="4" stroke-linecap="round"/><path d="M111 132v12m-10 12q10 7 20 0" fill="none" stroke="#945d57" stroke-width="2.5" stroke-linecap="round"/>';
+  const wolfHair=wolf
+    ? '<path d="M86 113 66 50 103 82Q111 76 119 82L156 50 136 113" fill="url(#coat-'+sid+')" stroke="'+p[0]+'" stroke-width="4"/>'
+    : '<path d="M77 123Q63 69 104 53Q149 42 159 89L150 121 140 98 127 91 111 101 96 91 84 108Z" fill="'+hairColor+'" stroke="#1c1820" stroke-width="3"/><path d="M88 91Q108 66 137 84" fill="none" stroke="#b78b70" stroke-opacity=".35" stroke-width="4"/>';
+  const special={
+    wolf:'<path d="M99 148q12-8 24 0l-12 14Z" fill="#352129"/><path d="M91 125h10m30 0h10" stroke="#f4c26f" stroke-width="5"/>',
+    villager:'<path d="M94 205 111 230 128 205" fill="none" stroke="#e9d3a4" stroke-width="4"/><path d="M95 252h32" stroke="#a98659" stroke-width="4"/>',
+    seer:'<path d="M92 155q19 18 38 0" fill="none" stroke="#d8c5f4" stroke-width="3"/>',
+    witch:'<path d="M93 151q18 16 36 0" fill="none" stroke="#e7c7ee" stroke-width="3"/>',
+    protector:'<path d="M92 205 111 225 130 205" fill="none" stroke="#dce9f1" stroke-width="4"/>',
+    hunter:'<path d="M92 205 111 224 130 205" fill="none" stroke="#e8c28e" stroke-width="4"/>',
+    cupid:'<path d="M93 151q18 16 36 0" fill="none" stroke="#f7d3dd" stroke-width="3"/>',
+    elder:'<path d="M87 150Q111 184 135 150L128 211 111 232 94 211Z" fill="#d9d1c2" stroke="#f0e8d9" stroke-width="3"/><path d="M96 174q15 11 30 0" stroke="#a49a8b" stroke-width="3" fill="none"/>',
+    littleGirl:'<path d="M89 151q22 18 44 0" fill="none" stroke="#9c6252" stroke-width="3"/>',
+    mayor:'<path d="M94 204 111 225 128 204" fill="none" stroke="#f4dfa9" stroke-width="4"/>',
+    medium:'<path d="M88 158q23 20 46 0" fill="none" stroke="#e2d9ed" stroke-width="3"/>',
+    thief:'<path d="M82 125q29-17 58 0" stroke="#29232d" stroke-width="12" fill="none"/><path d="M97 128h28" stroke="#d4c5bd" stroke-width="2"/>',
+    "white-wolf":'<path d="M88 121 67 48 103 82Q111 76 119 82L155 48 134 121" fill="#e4eef3" stroke="#f9ffff" stroke-width="4"/><path d="M92 127h9m20 0h9" stroke="#a9d8ef" stroke-width="4"/>',
+    "wolf-cub":'<path d="M89 121 76 65 105 87Q111 82 117 87L146 65 133 121" fill="#b17a68" stroke="#f2c7b2" stroke-width="4"/>',
+    "pied-piper":'<path d="M92 205 111 226 130 205" fill="none" stroke="#b9e0d1" stroke-width="4"/>',
+    knight:'<path d="M88 119Q111 101 134 119L130 157H92Z" fill="#788995" stroke="#e4decc" stroke-width="3"/><path d="M98 136h26" stroke="#f5e6c4" stroke-width="4"/>',
+    angel:'<path d="M89 202 111 228 133 202" fill="none" stroke="#fff0d1" stroke-width="4"/>',
+    sorcerer:'<path d="M93 152q18 16 36 0" fill="none" stroke="#e3c7f3" stroke-width="3"/>',
+    "false-seer":'<path d="M76 126Q111 110 146 126" stroke="#d6c4eb" stroke-width="12" fill="none"/><path d="M82 126h58" stroke="#4b385c" stroke-width="3"/>',
+    ghost:'<path d="M90 152q21 13 42 0" fill="none" stroke="#e7f5fb" stroke-width="3"/><circle cx="99" cy="128" r="3" fill="#effaff"/><circle cx="124" cy="128" r="3" fill="#effaff"/>'
+  };
+  const bg='<defs><linearGradient id="bg-'+sid+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+p[0]+'"/><stop offset=".48" stop-color="'+p[1]+'"/><stop offset="1" stop-color="'+p[2]+'"/></linearGradient><linearGradient id="coat-'+sid+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+p[0]+'"/><stop offset=".55" stop-color="'+p[1]+'"/><stop offset="1" stop-color="'+p[2]+'"/></linearGradient><linearGradient id="skin-'+sid+'" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#f4d2ad"/><stop offset=".55" stop-color="#dba783"/><stop offset="1" stop-color="#9e695d"/></linearGradient><radialGradient id="light-'+sid+'"><stop stop-color="#f5d7a4" stop-opacity=".45"/><stop offset="1" stop-color="#f5d7a4" stop-opacity="0"/></radialGradient><pattern id="grain-'+sid+'" width="19" height="19" patternUnits="userSpaceOnUse"><circle cx="3" cy="5" r="1" fill="#fff" opacity=".11"/><circle cx="13" cy="14" r=".8" fill="#fff" opacity=".08"/></pattern></defs>';
+  const body='<path d="M16 320Q20 233 70 207L91 190 111 209 132 190 153 207Q208 233 214 320Z" fill="url(#coat-'+sid+')" stroke="'+p[0]+'" stroke-width="4"/><path d="M89 199 111 229 133 199 151 320H71Z" fill="#171c27" fill-opacity=".72"/><path d="M111 230v75m-22-56 22 17 22-17" fill="none" stroke="#e7d2aa" stroke-opacity=".5" stroke-width="3"/><path d="M74 217Q111 241 148 217" fill="none" stroke="#f0d8ad" stroke-opacity=".28" stroke-width="4"/>';
+  const wings=(id==="angel"||id==="cupid")
+    ? '<path d="M82 188Q17 123 16 183Q19 220 76 248M140 188Q205 123 206 183Q203 220 146 248" fill="none" stroke="'+(id==="angel"?"#f4e9cf":"#efb9ca")+'" stroke-width="12" stroke-linecap="round" opacity=".9"/>'
+    : "";
+  const ghostGlow=id==="ghost" ? '<ellipse cx="111" cy="145" rx="87" ry="119" fill="#d9f0ff" opacity=".16"/>' : "";
+  return '<svg class="role-portrait-svg" viewBox="0 0 224 320" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Minh họa '+sid+'">'+bg+
+    '<rect width="224" height="320" fill="url(#bg-'+sid+')" opacity=".56"/><circle cx="111" cy="133" r="116" fill="url(#light-'+sid+')"/>'+
+    '<path d="M0 205Q39 155 75 184T151 177Q190 148 224 198V320H0Z" fill="#111722" opacity=".48"/>'+
+    '<path d="M22 44 29 34m162 19 8-13M37 120l7-7m137 19 7-8" stroke="#f5e2c2" stroke-opacity=".35" stroke-width="2"/>'+
+    wings+ghostGlow+body+
+    '<path d="M95 176h32v39H95Z" fill="url(#skin-'+sid+')"/>'+
+    '<path d="M75 108Q77 56 111 55Q151 55 151 111L146 154Q139 183 111 187Q83 183 78 154Z" fill="#2b2024" opacity=".7"/>'+
+    headwear[id]||""+
+    '<path d="M88 110Q88 69 111 67Q153 66 153 111L148 151Q140 178 111 181Q82 178 74 151Z" fill="url(#skin-'+sid+')" stroke="#f0c5a4" stroke-width="2.5"/>'+
+    (id==="ghost" ? '<path d="M88 110Q88 69 111 67Q153 66 153 111L148 151Q140 178 111 181Q82 178 74 151Z" fill="#cbe2f0" fill-opacity=".38"/>' : "")+
+    wolfHair+
+    '<path d="M90 128h8m26 0h8" stroke="#30242a" stroke-width="4" stroke-linecap="round"/><path d="M111 132v12m-10 12q10 7 20 0" fill="none" stroke="#945d57" stroke-width="2.5" stroke-linecap="round"/>'+
+    (id==="elder" ? '<path d="M85 151Q111 190 137 151L130 220 111 243 92 220Z" fill="#e2d9c8" stroke="#f5eee1" stroke-width="3"/>' : "")+
+    (id==="wolf"||id==="white-wolf"||id==="wolf-cub" ? '<path d="M99 145q12-8 24 0l-12 14Z" fill="#352129"/><path d="M91 125h10m30 0h10" stroke="'+(id==="white-wolf"?"#a9d8ef":"#f4c26f")+'" stroke-width="5"/>' : "")+
+    (id==="false-seer" ? '<path d="M76 126Q111 110 146 126" stroke="#d6c4eb" stroke-width="12" fill="none"/><path d="M82 126h58" stroke="#4b385c" stroke-width="3"/>' : "")+
+    (id==="thief" ? '<path d="M82 125q29-17 58 0" stroke="#29232d" stroke-width="12" fill="none"/>' : "")+
+    (props[id]||"")+ 
+    '<rect width="224" height="320" fill="url(#grain-'+sid+')" opacity=".7"/>'+
+    '<path d="M8 8h24M8 8v24m184-24h16v24M8 288v24h24m168-24v24h-24" fill="none" stroke="#f4dcae" stroke-opacity=".45" stroke-width="2"/>'+
+    '</svg>';
 }
 function matchesFilter(role) {
   if (activeFilter === "playable") return role.status === "playable";
@@ -105,16 +162,32 @@ function matchesFilter(role) {
 function renderRoles() {
   const q = search.value.trim().toLocaleLowerCase("vi");
   const filtered = roles.filter(role => matchesFilter(role) && (role.name.toLocaleLowerCase("vi").includes(q) || role.summary.toLocaleLowerCase("vi").includes(q)));
+  const englishNames = {
+    wolf:"WEREWOLF",villager:"VILLAGER",seer:"SEER",witch:"WITCH",protector:"GUARDIAN",
+    hunter:"HUNTER",cupid:"CUPID",elder:"ELDER",littleGirl:"LITTLE GIRL",mayor:"MAYOR",
+    medium:"MEDIUM",thief:"THIEF","white-wolf":"WHITE WOLF","wolf-cub":"WOLF CUB",
+    sorcerer:"SORCERER","false-seer":"FALSE SEER",ghost:"GHOST","pied-piper":"PIED PIPER",
+    knight:"KNIGHT",angel:"ANGEL"
+  };
+  const factionCode = role => role.faction === "wolf" ? "SÓI" : role.faction === "town" ? "DÂN" : "ĐỘC LẬP";
   grid.innerHTML = filtered.map((role, index) => {
     const planned = role.status === "planned";
-    return '<article class="role-card" data-role="' + escapeHtml(role.id) + '">' +
+    const serial = String(index + 1).padStart(2,"0");
+    return '<article class="role-card" data-role="' + escapeHtml(role.id) + '" data-faction="' + escapeHtml(role.faction) + '">' +
       '<div class="card-inner">' +
         '<section class="card-face card-front">' +
-          '<div class="card-top"><span class="faction">' + escapeHtml(role.factionLabel) + '</span><span class="status ' + (planned ? "planned" : "") + '">' + (planned ? "SẮP PHÁT TRIỂN" : "ĐANG TRONG GAME") + '</span></div>' +
-          '<div class="sigil-wrap"><span class="sigil">' + roleIconSvg(role.id) + '</span></div>' +
-          '<h3 class="role-name">' + escapeHtml(role.name) + '</h3>' +
-          '<p class="role-summary">' + escapeHtml(role.summary) + '</p>' +
-          '<div class="card-bottom"><span class="card-index">ARCHIVE / ' + String(index + 1).padStart(2,"0") + '</span><button class="flip-btn" type="button">Xem năng lực ↗</button></div>' +
+          '<div class="portrait-panel">' +
+            '<div class="portrait-art">' + rolePortraitSvg(role.id) + '</div>' +
+            '<div class="portrait-vignette"></div>' +
+            '<div class="portrait-meta"><span class="archive-number">' + serial + '</span><span class="portrait-faction">' + escapeHtml(factionCode(role)) + '</span></div>' +
+            '<span class="portrait-status ' + (planned ? "planned" : "") + '">' + (planned ? "SẮP PHÁT TRIỂN" : "ĐANG TRONG GAME") + '</span>' +
+            '<span class="side-name">' + escapeHtml(englishNames[role.id] || role.name.toUpperCase()) + '</span>' +
+          '</div>' +
+          '<div class="card-caption">' +
+            '<div class="role-title-strip"><h3 class="role-name">' + escapeHtml(role.name) + '</h3><span class="role-faction-mark">' + escapeHtml(factionCode(role)) + '</span></div>' +
+            '<p class="role-summary">' + escapeHtml(role.summary) + '</p>' +
+            '<div class="card-bottom"><span class="card-index">ROLE / ' + serial + '</span><button class="flip-btn" type="button">Xem năng lực ↗</button></div>' +
+          '</div>' +
         '</section>' +
         '<section class="card-face card-back">' +
           '<div class="card-top"><span class="faction">HỒ SƠ NHÂN VẬT</span><span class="status ' + (planned ? "planned" : "") + '">' + (planned ? "CHƯA CÓ LOGIC" : "ĐÃ TRIỂN KHAI") + '</span></div>' +
