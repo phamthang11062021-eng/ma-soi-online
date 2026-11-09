@@ -367,3 +367,20 @@ body[data-phase="nightIntro"] .ambient,body[data-phase="night"] .ambient{backgro
 @keyframes avatarWake{from{transform:rotateZ(13deg) rotateX(30deg) translateY(8px) scale(.88)}to{transform:translateY(-5px) rotateX(-5deg) scale(1.08)}}
 @media(max-width:700px){.tile-person{height:61px}.avatar-3d{transform:scale(.88);transform-origin:bottom center}.tile-art{width:60%}}
 @media(prefers-reduced-motion:reduce){.avatar-3d,.player-tile.pose-transition .avatar-3d{animation:none!important;transition:none!important}}
+
+
+/* Unified 2D fantasy role-card artwork */
+.role-card-front .role-art{max-width:300px;padding:10px;border:1px solid #a98a5b;border-radius:15px;background:linear-gradient(145deg,#111722,#302536 55%,#171923);box-shadow:inset 0 1px #ffffff12,0 12px 28px #0006}
+.role-card-front .role-art-frame{aspect-ratio:5/3;border:1px solid #c9a96b88;border-radius:10px;background:radial-gradient(ellipse at 50% 48%,#564338 0,#29232a 54%,#111720 100%);isolation:isolate}
+.role-card-front .role-art-frame:before,.role-card-front .role-art-frame:after{content:"";position:absolute;inset:8px;border:1px solid #d6b77a44;border-radius:8px;pointer-events:none}
+.role-card-front .role-art-frame:after{inset:15px 28px;border-left:0;border-right:0;border-radius:0;opacity:.6}
+.role-card-front .role-art-icon{width:100%;height:100%;display:grid;place-items:center}
+.role-card-front .role-art-icon svg{width:min(68%,190px);height:94%;overflow:visible;filter:drop-shadow(0 8px 8px #0008)}
+.role-card-front .role-art-icon .role-illustration{animation:roleArtEnter .55s cubic-bezier(.2,.75,.25,1) both}
+.role-card-front .role-art-caption{letter-spacing:2.5px;color:#c7ad7c;font-size:8px}
+@keyframes roleArtEnter{from{opacity:0;transform:translateY(8px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+.role-card[data-role="wolf"],.role-card[data-role="white-wolf"],.role-card[data-role="wolf-cub"]{--role-card-accent:#c8797d}
+.role-card[data-role="seer"],.role-card[data-role="medium"]{--role-card-accent:#a99ae0}
+.role-card[data-role="angel"]{--role-card-accent:#e4d5a4}
+@media(max-width:700px){.role-card-front .role-art{max-width:100%}.role-card-front .role-art-icon svg{width:min(66%,170px)}}
+@media(prefers-reduced-motion:reduce){.role-card-front .role-art-icon .role-illustration{animation:none}}
