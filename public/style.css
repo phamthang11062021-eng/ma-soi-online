@@ -384,3 +384,23 @@ body[data-phase="nightIntro"] .ambient,body[data-phase="night"] .ambient{backgro
 .role-card[data-role="angel"]{--role-card-accent:#e4d5a4}
 @media(max-width:700px){.role-card-front .role-art{max-width:100%}.role-card-front .role-art-icon svg{width:min(66%,170px)}}
 @media(prefers-reduced-motion:reduce){.role-card-front .role-art-icon .role-illustration{animation:none}}
+
+
+/* Premium 2D fantasy role-card artwork */
+.role-card{position:relative;isolation:isolate;overflow:hidden;border-radius:18px;background:radial-gradient(ellipse at 50% 25%,#4a3430 0,#25242a 44%,#111821 100%);border:1px solid #c59a60;box-shadow:inset 0 0 0 1px #f5d6a52b,inset 0 0 30px #d2a45b14,0 20px 48px #0009}
+.role-card:before{content:"";position:absolute;inset:6px;border:1px solid #d6b77b3b;border-radius:13px;pointer-events:none;z-index:-1}
+.role-art{max-width:280px;margin:18px auto 12px;padding:12px;border:1px solid #c39a625e;border-radius:16px;background:linear-gradient(145deg,#111923,#25212a 55%,#121820);box-shadow:inset 0 0 24px #0009,0 8px 22px #0006}
+.role-art-frame{position:relative;display:grid;place-items:center;aspect-ratio:1/1;overflow:hidden;border:1px solid #c7a46b66;border-radius:12px;background:radial-gradient(ellipse at 50% 45%,#554036 0,#26232a 48%,#111821 100%)}
+.role-art-frame:after{content:"";position:absolute;inset:7px;border:1px solid #e4c28a36;border-radius:9px;pointer-events:none}
+.role-art-icon{width:100%;height:100%;display:grid;place-items:center;position:relative;z-index:1}
+.role-illustration{display:block;width:min(100%,218px);height:auto;overflow:visible;filter:drop-shadow(0 7px 12px #000b);animation:roleArtArrive .65s cubic-bezier(.2,.8,.2,1) both}
+.role-art-glow{position:absolute;width:58%;height:58%;border-radius:50%;background:var(--role-glow,#d9a86b24);filter:blur(25px);pointer-events:none}
+.role-card[data-role="wolf"],.role-card[data-role="white-wolf"],.role-card[data-role="wolf-cub"]{--role-glow:#bd536b55}
+.role-card[data-role="seer"],.role-card[data-role="medium"]{--role-glow:#9b8bdf55}
+.role-card[data-role="witch"],.role-card[data-role="pied-piper"]{--role-glow:#a76ac455}
+.role-card[data-role="angel"],.role-card[data-role="protector"],.role-card[data-role="knight"]{--role-glow:#e0c47b55}
+.role-card h2{text-align:center;text-shadow:0 2px 14px #d6aa6740}
+.role-card .role-team{background:#120f18a8;box-shadow:inset 0 0 10px #0006}
+@keyframes roleArtArrive{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.role-illustration{animation:none}}
+@media(max-width:700px){.role-art{max-width:250px}.role-illustration{width:min(100%,196px)}}
