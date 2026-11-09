@@ -47,7 +47,54 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 function roleIconSvg(id) {
-  return ROLE_ICONS[id] || '<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 12 72 48 108 60 72 72 60 108 48 72 12 60 48 48Z" fill="none" stroke="currentColor" stroke-width="3"/></svg>';
+  const palettes = {
+    wolf:["#d88a8f","#683640","#251b27"],villager:["#c8aa79","#76583b","#29211e"],
+    seer:["#b9a7eb","#58477f","#241d39"],witch:["#c6a0df","#684477","#261b30"],
+    protector:["#b7cce0","#526b87","#1b2a3b"],hunter:["#d7aa79","#76502f","#2b2019"],
+    cupid:["#e9a7bd","#914b70","#321d31"],elder:["#d1c0a0","#746044","#2b241e"],
+    littleGirl:["#b4cedd","#607d96","#202b39"],mayor:["#e4c783","#8a6836","#30251c"],
+    medium:["#c3cce1","#66728e","#222638"],thief:["#d0b0a6","#60454c","#241c25"],
+    "white-wolf":["#e4edf3","#8497a8","#27313d"],"wolf-cub":["#d9a18b","#84534b","#2b2025"],
+    scapegoat:["#cbb9aa","#78665a","#2b2422"],"pied-piper":["#a9d0c2","#4e8176","#1c302e"],
+    knight:["#d8c99d","#81704c","#292820"],angel:["#eee2b8","#9b8958","#302b20"],
+    sorcerer:["#c2a4dc","#62457b","#251a31"],"false-seer":["#c2a8e0","#56436f","#211a30"],
+    ghost:["#c2d5e4","#637b94","#1b2632"]
+  };
+  const p=palettes[id]||palettes.villager;
+  const wolf=["wolf","white-wolf","wolf-cub"].includes(id);
+  const gradients='<defs><linearGradient id="robe-'+id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+p[0]+'"/><stop offset=".55" stop-color="'+p[1]+'"/><stop offset="1" stop-color="'+p[2]+'"/></linearGradient><radialGradient id="halo-'+id+'"><stop stop-color="'+p[0]+'" stop-opacity=".42"/><stop offset="1" stop-color="'+p[2]+'" stop-opacity="0"/></radialGradient></defs>';
+  const outfit='<path d="M23 158Q27 111 53 105L80 119 107 105Q133 111 137 158Z" fill="url(#robe-'+id+')" stroke="'+p[0]+'" stroke-width="3"/><path d="m80 120-13 38m13-38 13 38" stroke="#f0d8aa" stroke-opacity=".55" stroke-width="2"/>';
+  const face=wolf
+    ? '<path d="M54 48 43 23 67 39Q80 32 93 39L117 23 106 53Q116 88 80 112 44 88 54 48Z" fill="url(#robe-'+id+')" stroke="#e9c6b7" stroke-width="2.5"/><path d="m59 72 13 5m36-5-13 5" stroke="#fff0d8" stroke-width="4" stroke-linecap="round"/><path d="m71 89 9 6 9-6-9 14Z" fill="#e8a0a1"/>'
+    : '<path d="M53 49Q80 25 107 49L103 88Q96 111 80 115 64 111 57 88Z" fill="#dba783" stroke="#f2c7a4" stroke-width="2"/><path d="M64 77h3m26 0h3" stroke="#34272a" stroke-width="3.5" stroke-linecap="round"/><path d="M72 96q8 6 16 0" fill="none" stroke="#874f4d" stroke-width="2.5" stroke-linecap="round"/>';
+  const hair=wolf?'':'<path d="M52 64Q44 24 80 24q36 0 28 40l-9-13-10 5-9-8-13 9-9-4Z" fill="#33282a" stroke="#1d1920" stroke-width="2"/>';
+  const costume={
+    seer:'<path d="M42 53 80 9 118 53 100 45 80 34 60 45Z" fill="#392b50" stroke="#d2b9f4" stroke-width="3"/><circle cx="80" cy="27" r="6" fill="#eee0ff"/>',
+    witch:'<path d="M38 48 80 4 124 48 96 38 80 30 60 40Z" fill="#382342" stroke="#d7a7e5" stroke-width="3"/>',
+    protector:'<path d="M44 49 46 29 80 10 114 29 116 49 98 42 80 36 62 42Z" fill="#536f8a" stroke="#d4e7f7" stroke-width="3"/><path d="M80 17v24m-12-12h24" stroke="#f4dfb4" stroke-width="3"/>',
+    hunter:'<path d="M37 49q43-34 86 0l-8 9H45Z" fill="#76502e" stroke="#e8bd87" stroke-width="3"/><path d="M80 20v20" stroke="#e8bd87" stroke-width="3"/>',
+    elder:'<path d="M47 61q-9-40 33-43 42 3 33 43l-12 17H59Z" fill="#d9c7a7" stroke="#a58d6e" stroke-width="2"/><path d="M59 78q21 18 42 0" fill="none" stroke="#f4ead8" stroke-width="5"/>',
+    littleGirl:'<path d="M44 48Q27 8 60 24L80 10 100 24Q133 8 116 48" fill="#35485e" stroke="#c4d7e5" stroke-width="3"/>',
+    mayor:'<path d="m39 48 10-30 22 20 9-31 10 31 22-20 10 30Z" fill="#a98645" stroke="#f3d89c" stroke-width="3"/>',
+    medium:'<path d="M42 53Q28 7 80 7q52 0 38 46L99 40 80 32 61 40Z" fill="#3d4960" stroke="#d6e0f1" stroke-width="3"/>',
+    thief:'<path d="M35 48q45-41 90 0l-10 12H45Z" fill="#3c3039" stroke="#e7c4c5" stroke-width="3"/><path d="M52 63h56l-5 19H57Z" fill="#211b25"/>',
+    knight:'<path d="M45 53V29L80 9l35 20v24l-15-9H60Z" fill="#8b805f" stroke="#f0dfb6" stroke-width="3"/><path d="M80 12v38m-15-20h30" stroke="#fff0ca" stroke-width="3"/>',
+    angel:'<path d="M52 51Q8 3 18 57q7 24 47 34M108 51q44-48 34 6-7 24-47 34" fill="none" stroke="#fff0ce" stroke-width="7"/><ellipse cx="80" cy="18" rx="23" ry="7" fill="none" stroke="#f4dfa5" stroke-width="4"/>',
+    cupid:'<path d="M80 35Q42-3 25 34q-9 31 55 62 64-31 55-62Q118-3 80 35Z" fill="none" stroke="#f2bfd3" stroke-width="7"/>',
+    "white-wolf":'<path d="M51 48 36 12 68 36Q80 29 92 36l32-24-15 39" fill="#dce7ed" stroke="#f3fbff" stroke-width="3"/>',
+    "wolf-cub":'<path d="M54 48 45 20 68 37Q80 31 92 37l23-17-9 31" fill="#9b6458" stroke="#efc0a9" stroke-width="3"/>',
+    "pied-piper":'<path d="M47 50 111 68l-4 10-65-20Z" fill="#7ca99b" stroke="#d1f0df" stroke-width="3"/>',
+    scapegoat:'<path d="M80 8 93 33l28 4-20 20 5 29-26-14-26 14 5-29-20-20 28-4Z" fill="#8a7468" stroke="#e6d4c8" stroke-width="3"/>',
+    sorcerer:'<path d="M42 50 80 5 118 50 99 41 80 32 61 41Z" fill="#39264d" stroke="#d7b8f4" stroke-width="3"/><path d="M80 11v20m-8-10h16" stroke="#f3e3ff" stroke-width="3"/>',
+    "false-seer":'<path d="M42 53Q80 5 118 53L98 45 80 36 62 45Z" fill="#39264d" stroke="#d7b8f4" stroke-width="3"/><path d="M67 76h26" stroke="#e3d0ff" stroke-width="3"/>',
+    ghost:'<path d="M51 47Q51 20 80 20t29 27v61l-14-9-15 9-15-9-14 9Z" fill="#bdcedd" fill-opacity=".75" stroke="#e5f3ff" stroke-width="3"/>'
+  };
+  const emblem=costume[id]||'<path d="M58 120v25m-12-9 12 9 12-9" stroke="'+p[0]+'" stroke-width="3" fill="none"/>';
+  return '<svg viewBox="0 0 160 160" role="img" aria-label="Tranh minh họa '+id+'" xmlns="http://www.w3.org/2000/svg">'+gradients+
+    '<circle cx="80" cy="80" r="77" fill="url(#halo-'+id+')"/><circle cx="80" cy="80" r="72" fill="none" stroke="'+p[0]+'" stroke-opacity=".5" stroke-width="1.5"/>'+
+    outfit+emblem+hair+face+
+    '<path d="M55 67q-9-9-10 3m60-3q9-9 10 3" fill="none" stroke="#b77e68" stroke-width="4"/>'+
+    '<path d="M80 88v6" stroke="#9c6558" stroke-width="2" stroke-linecap="round"/></svg>';
 }
 function matchesFilter(role) {
   if (activeFilter === "playable") return role.status === "playable";
