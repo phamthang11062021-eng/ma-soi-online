@@ -328,3 +328,42 @@ body[data-phase="nightIntro"] .ambient,body[data-phase="night"] .ambient{backgro
 .role-card[data-role="angel"]{--role-accent:#e4d39b}
 #actionArea .selection-count{margin-top:12px}
 @media(prefers-reduced-motion:reduce){.player-tile.pose-transition{transition:none!important}}
+
+
+/* 3D seated villagers: layered, shaded CSS character models */
+.tile-art{width:62%;max-width:68px;min-width:42px;overflow:visible;background:radial-gradient(ellipse at 50% 85%,#d8b56b24,transparent 66%);border:0;box-shadow:none}
+.tile-person{width:100%;height:72px;display:grid;place-items:end center;overflow:visible;perspective:180px;transform-style:preserve-3d}
+.avatar-stage{width:100%;height:100%;display:grid;place-items:end center;transform-style:preserve-3d}
+.avatar-3d{position:relative;display:block;width:54px;height:70px;transform-style:preserve-3d;filter:drop-shadow(0 7px 4px #0008);transition:transform .55s cubic-bezier(.2,.75,.25,1),filter .55s}
+.avatar-shadow{position:absolute;bottom:0;left:10px;width:36px;height:8px;border-radius:50%;background:#0009;filter:blur(4px);transform:rotateX(65deg)}
+.avatar-legs{position:absolute;z-index:1;bottom:2px;left:16px;width:23px;height:18px;display:flex;gap:3px;justify-content:center}
+.avatar-legs i{display:block;width:9px;height:17px;border-radius:5px 5px 3px 3px;background:linear-gradient(90deg,#202631,#586171 45%,#151b25);box-shadow:inset -2px 0 2px #0008}
+.avatar-body{position:absolute;z-index:3;bottom:13px;left:9px;width:37px;height:34px;border-radius:13px 13px 8px 8px;background:linear-gradient(105deg,var(--avatar-dark,#34475b),var(--avatar-main,#7890a6) 48%,var(--avatar-light,#b5c2c9) 70%,var(--avatar-dark,#34475b));box-shadow:inset -5px -3px 7px #080d16aa,inset 3px 2px 5px #ffffff55,0 3px 4px #0008;transform:rotateX(-7deg)}
+.avatar-coat{position:absolute;inset:7px 10px 0;border-left:1px solid #ffffff55;border-right:1px solid #0005;background:linear-gradient(90deg,transparent 45%,#f1d7a766 48%,transparent 53%)}
+.avatar-arm{position:absolute;top:8px;width:10px;height:27px;border-radius:7px;background:linear-gradient(90deg,var(--avatar-dark),var(--avatar-light),var(--avatar-dark));box-shadow:inset -2px 0 2px #0008}
+.avatar-arm.left{left:-5px;transform:rotate(17deg)}
+.avatar-arm.right{right:-5px;transform:rotate(-17deg)}
+.avatar-neck{position:absolute;z-index:4;bottom:43px;left:22px;width:11px;height:10px;border-radius:3px;background:linear-gradient(90deg,#8b5742,#e0ae8a 55%,#754331)}
+.avatar-head{position:absolute;z-index:5;left:13px;top:4px;width:29px;height:34px;border-radius:45% 45% 43% 43%;background:radial-gradient(ellipse at 34% 26%,#f2c9a6 0,#dca17e 42%,#a96952 78%,#704336 100%);box-shadow:inset -4px -3px 5px #603a35aa,inset 3px 2px 4px #fff7;transform:translateZ(5px) rotateX(-3deg)}
+.avatar-ear{position:absolute;top:13px;width:6px;height:9px;border-radius:50%;background:#b9785d;z-index:-1}
+.avatar-ear.left{left:-4px}.avatar-ear.right{right:-4px}
+.avatar-hair{position:absolute;left:-1px;top:-3px;width:31px;height:14px;border-radius:70% 65% 25% 25%;background:linear-gradient(145deg,#4a3029,#17191e 72%);box-shadow:inset 2px 2px 3px #ffffff35}
+.avatar-eye{position:absolute;top:16px;width:3px;height:3px;border-radius:50%;background:#29252a;box-shadow:0 0 1px #000}
+.avatar-eye.left{left:8px}.avatar-eye.right{right:8px}
+.avatar-nose{position:absolute;left:13px;top:18px;width:4px;height:6px;border-radius:40%;background:linear-gradient(90deg,#a96f59,#f0bc98)}
+.avatar-mouth{position:absolute;left:11px;top:26px;width:7px;height:2px;border-radius:50%;background:#874b4b}
+.avatar-tone-0{--avatar-dark:#26384d;--avatar-main:#54718c;--avatar-light:#a9c0d1}
+.avatar-tone-1{--avatar-dark:#4b3027;--avatar-main:#98634c;--avatar-light:#d0a17c}
+.avatar-tone-2{--avatar-dark:#35412f;--avatar-main:#71835a;--avatar-light:#b6c28b}
+.avatar-tone-3{--avatar-dark:#47324f;--avatar-main:#866493;--avatar-light:#c2a3cf}
+.avatar-tone-4{--avatar-dark:#4b3a25;--avatar-main:#a1844b;--avatar-light:#d9c38b}
+.avatar-tone-5{--avatar-dark:#34444a;--avatar-main:#6d9092;--avatar-light:#b4d0c9}
+.player-tile.pose-sleeping .avatar-3d{transform:rotateZ(13deg) rotateX(30deg) translateY(8px) scale(.88);filter:brightness(.55) saturate(.6) drop-shadow(0 4px 3px #0009)}
+.player-tile.pose-acting .avatar-3d{transform:translateY(-5px) rotateX(-5deg) scale(1.08);filter:brightness(1.12) drop-shadow(0 0 8px #f0d39a88)}
+.player-tile.pose-transition.pose-sleeping .avatar-3d{animation:avatarSleep .58s ease both}
+.player-tile.pose-transition.pose-acting .avatar-3d{animation:avatarWake .58s cubic-bezier(.2,.75,.25,1) both}
+.player-tile.dead .avatar-3d{filter:grayscale(1) brightness(.48) drop-shadow(0 3px 3px #000)}
+@keyframes avatarSleep{from{transform:none;filter:none}to{transform:rotateZ(13deg) rotateX(30deg) translateY(8px) scale(.88);filter:brightness(.55) saturate(.6)}}
+@keyframes avatarWake{from{transform:rotateZ(13deg) rotateX(30deg) translateY(8px) scale(.88)}to{transform:translateY(-5px) rotateX(-5deg) scale(1.08)}}
+@media(max-width:700px){.tile-person{height:61px}.avatar-3d{transform:scale(.88);transform-origin:bottom center}.tile-art{width:60%}}
+@media(prefers-reduced-motion:reduce){.avatar-3d,.player-tile.pose-transition .avatar-3d{animation:none!important;transition:none!important}}

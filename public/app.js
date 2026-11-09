@@ -18,7 +18,7 @@ scapegoat:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 12 72 40l3
 knight:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M28 101V44l32-28 32 28v57M28 53h64M44 101V70q16-17 32 0v31" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M60 4v22m-11-11h22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>',
 angel:'<svg viewBox="0 0 120 120" aria-hidden="true"><path d="M60 36q-12-18-32-11 8 27 32 33 24-6 32-33-20-7-32 11Z M60 40v61M43 101h34M45 20q15-17 30 0" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="60" cy="33" r="10" fill="none" stroke="currentColor" stroke-width="3"/></svg>'
 };
-const GENERIC_AVATAR='<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="27" r="14" fill="currentColor"/><path d="M13 72q2-25 27-25t27 25" fill="currentColor"/></svg>';
+const GENERIC_AVATAR = '<span class="avatar-3d" aria-hidden="true"><span class="avatar-shadow"></span><span class="avatar-legs"><i></i><i></i></span><span class="avatar-body"><i class="avatar-arm left"></i><i class="avatar-arm right"></i><i class="avatar-coat"></i></span><span class="avatar-neck"></span><span class="avatar-head"><i class="avatar-ear left"></i><i class="avatar-ear right"></i><i class="avatar-hair"></i><i class="avatar-eye left"></i><i class="avatar-eye right"></i><i class="avatar-nose"></i><i class="avatar-mouth"></i></span></span>';
 
 
 
@@ -145,7 +145,7 @@ function render(s) {
     const dealCard = dealingCards ? '<div class="seat-card-back" aria-hidden="true"><span>☾</span></div>' : "";
     return '<div class="player-tile ' + tileState + ' pose-' + pose + (poseChanged ? " pose-transition" : "") + (me && me.id === p.id ? " is-self" : "") + (p.canManage ? " managed" : "") + (p.isHost ? " is-host" : "") + '" data-player-id="' + esc(p.id) + '" style="--seat-x:' + x + '%;--seat-y:' + y + '%;--seat-delay:' + (i * 95) + 'ms">' +
     dealCard +
-    '<div class="tile-art avatar-tone-' + (i % 6) + '"><span class="tile-spark">✦</span><span class="tile-person">' + GENERIC_AVATAR + '</span><span class="tile-number">' + String(i + 1).padStart(2, "0") + '</span></div>' +
+    '<div class="tile-art avatar-tone-' + (i % 6) + '"><span class="tile-spark">✦</span><span class="tile-person"><span class="avatar-stage">' + GENERIC_AVATAR + '</span></span><span class="tile-number">' + String(i + 1).padStart(2, "0") + '</span></div>' +
     '<div class="tile-name">' + esc(p.name) + '</div>' +
     (p.isHost ? '<span class="host-badge">♛ CHỦ PHÒNG</span>' : '') +
     '<span class="tile-status">' + (!p.alive ? "✕ " : (!p.connected ? "◌ " : (s.status === "lobby" && p.ready ? "✓ " : "● "))) + statusText + '</span>' +
