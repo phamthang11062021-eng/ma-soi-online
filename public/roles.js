@@ -101,9 +101,12 @@ function rolePortraitSvg(id) {
   const faceWolf=wolf
     ? '<path d="M88 106 70 75 99 87Q111 78 123 87L152 75 134 110Q147 151 111 173 75 151 88 106Z" fill="url(#skin-'+sid+')" stroke="'+p[0]+'" stroke-width="3"/><path d="M96 125l9 4m31-4-9 4" stroke="#fff0d8" stroke-width="4" stroke-linecap="round"/><path d="M105 143q6-6 12 0l-6 8Z" fill="#34232a"/><path d="M102 156q9 8 18 0" stroke="#f2c4b7" stroke-width="3" fill="none"/>'
     : '<path d="M88 111Q88 68 111 67Q153 66 153 111L148 151Q140 178 111 181Q82 178 74 151Z" fill="url(#skin-'+sid+')" stroke="#f0c5a4" stroke-width="2.5"/><path d="M91 128h8m25 0h8" stroke="#30242a" stroke-width="4" stroke-linecap="round"/><path d="M111 132v12m-10 12q10 7 20 0" fill="none" stroke="#945d57" stroke-width="2.5" stroke-linecap="round"/>';
-  const wolfHair=wolf
+  const wolfHair=id==="wolf"
     ? '<path d="M86 113 66 50 103 82Q111 76 119 82L156 50 136 113" fill="url(#coat-'+sid+')" stroke="'+p[0]+'" stroke-width="4"/>'
-    : '<path d="M77 123Q63 69 104 53Q149 42 159 89L150 121 140 98 127 91 111 101 96 91 84 108Z" fill="'+hairColor+'" stroke="#1c1820" stroke-width="3"/><path d="M88 91Q108 66 137 84" fill="none" stroke="#b78b70" stroke-opacity=".35" stroke-width="4"/>';
+    : id==="elder"
+      ? '<path d="M77 123Q63 69 104 53Q149 42 159 89L150 121 140 98 127 91 111 101 96 91 84 108Z" fill="#e5dfd0" stroke="#fff4e3" stroke-width="3"/>'
+      : (id==="white-wolf"||id==="wolf-cub") ? ""
+      : '<path d="M77 123Q63 69 104 53Q149 42 159 89L150 121 140 98 127 91 111 101 96 91 84 108Z" fill="'+hairColor+'" stroke="#1c1820" stroke-width="3"/><path d="M88 91Q108 66 137 84" fill="none" stroke="#b78b70" stroke-opacity=".35" stroke-width="4"/>';
   const special={
     wolf:'<path d="M99 148q12-8 24 0l-12 14Z" fill="#352129"/><path d="M91 125h10m30 0h10" stroke="#f4c26f" stroke-width="5"/>',
     villager:'<path d="M94 205 111 230 128 205" fill="none" stroke="#e9d3a4" stroke-width="4"/><path d="M95 252h32" stroke="#a98659" stroke-width="4"/>',
@@ -139,16 +142,13 @@ function rolePortraitSvg(id) {
     wings+ghostGlow+body+
     '<path d="M95 176h32v39H95Z" fill="url(#skin-'+sid+')"/>'+
     '<path d="M75 108Q77 56 111 55Q151 55 151 111L146 154Q139 183 111 187Q83 183 78 154Z" fill="#2b2024" opacity=".7"/>'+
-    headwear[id]||""+
-    '<path d="M88 110Q88 69 111 67Q153 66 153 111L148 151Q140 178 111 181Q82 178 74 151Z" fill="url(#skin-'+sid+')" stroke="#f0c5a4" stroke-width="2.5"/>'+
-    (id==="ghost" ? '<path d="M88 110Q88 69 111 67Q153 66 153 111L148 151Q140 178 111 181Q82 178 74 151Z" fill="#cbe2f0" fill-opacity=".38"/>' : "")+
+    (headwear[id]||"")+
+    faceWolf+
     wolfHair+
-    '<path d="M90 128h8m26 0h8" stroke="#30242a" stroke-width="4" stroke-linecap="round"/><path d="M111 132v12m-10 12q10 7 20 0" fill="none" stroke="#945d57" stroke-width="2.5" stroke-linecap="round"/>'+
     (id==="elder" ? '<path d="M85 151Q111 190 137 151L130 220 111 243 92 220Z" fill="#e2d9c8" stroke="#f5eee1" stroke-width="3"/>' : "")+
-    (id==="wolf"||id==="white-wolf"||id==="wolf-cub" ? '<path d="M99 145q12-8 24 0l-12 14Z" fill="#352129"/><path d="M91 125h10m30 0h10" stroke="'+(id==="white-wolf"?"#a9d8ef":"#f4c26f")+'" stroke-width="5"/>' : "")+
     (id==="false-seer" ? '<path d="M76 126Q111 110 146 126" stroke="#d6c4eb" stroke-width="12" fill="none"/><path d="M82 126h58" stroke="#4b385c" stroke-width="3"/>' : "")+
     (id==="thief" ? '<path d="M82 125q29-17 58 0" stroke="#29232d" stroke-width="12" fill="none"/>' : "")+
-    (props[id]||"")+ 
+    (props[id]||"")+
     '<rect width="224" height="320" fill="url(#grain-'+sid+')" opacity=".7"/>'+
     '<path d="M8 8h24M8 8v24m184-24h16v24M8 288v24h24m168-24v24h-24" fill="none" stroke="#f4dcae" stroke-opacity=".45" stroke-width="2"/>'+
     '</svg>';
